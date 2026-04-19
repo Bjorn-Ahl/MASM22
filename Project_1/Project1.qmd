@@ -384,7 +384,7 @@ model_eight<- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) 
 summary(model_eight)
 
 
-
+vif(model_eight) |> knitr::kable()                                                                        
 ```
 
 Part 1: 140 obs
@@ -393,14 +393,9 @@ Part 2: 96 obs
 
 Part 3: 54 obs
 
-              Estimate Std. Error
-(Intercept)   -6.85697    1.45193
-log(Fuel)      0.22538    0.01955
-log(GRP)       0.08315    0.04133
-log(Income)    0.25515    0.24166
-log(Vehicles)  0.55362    0.13839
-log(Builton)   0.12510    0.05027
-log(Higheds)  -0.06857    0.07007  -
-log(Seniors)   0.45357    0.10837
-df$Part2      -0.07334    0.03025
-df$Part3      -0.10051    0.04533
+```         
+          Estimate Std. Error
+```
+
+(Intercept) -6.85697 1.45193 log(Fuel) 0.22538 0.01955 log(GRP) 0.08315 0.04133 log(Income) 0.25515 0.24166 log(Vehicles) 0.55362 0.13839 log(Builton) 0.12510 0.05027 log(Higheds) -0.06857 0.07007 - log(Seniors) 0.45357 0.10837 df$Part2      -0.07334    0.03025
+df$Part3 -0.10051 0.04533
