@@ -19,7 +19,8 @@ editor: visual
 
 library(tidyverse)
 library(readxl)
-df <- as.data.frame(read_excel("Project1data.xlsx"))
+xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "Project_1/Project1data.xlsx"
+df <- as.data.frame(read_excel(xlsx_path))
 ```
 
 ## Exploratory summary
@@ -30,18 +31,37 @@ glimpse(df)
 summary(df)
 ```
 
-## Exponential model
+# Part 1. Particle emissions and fuel consumption
+
+## 1(a) Choice of transformations
+
+We compare residual plots for three candidate models to motivate the log of the response and to decide between `x = Fuel` and `x = log(Fuel)`.
 
 ```{r}
+#| label: fig-1a-resid
+#| fig-cap: "Residuals vs fitted for PM10~Fuel, log(PM10)~Fuel, and log(PM10)~log(Fuel)."
+#| message: false
+#| warning: false
 
+library(broom)
+library(patchwork)
+
+m_raw    <- lm(PM10      ~ Fuel,       data = df)
+m_logy   <- lm(log(PM10) ~ Fuel,       data = df)
+m_loglog <- lm(log(PM10) ~ log(Fuel),  data = df)
+
+plot_resid <- function(mod, title) {
+  augment(mod) |>
+    ggplot(aes(.fitted, .resid)) +
+    geom_point(alpha = .6) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    geom_smooth(se = FALSE, method = "loess", formula = y ~ x, colour = "steelblue") +
+    labs(title = title, x = "fitted", y = "residual")
+}
+
+plot_resid(m_raw,    "PM10 ~ Fuel") +
+  plot_resid(m_logy,   "log(PM10) ~ Fuel") +
+  plot_resid(m_loglog, "log(PM10) ~ log(Fuel)")
 ```
 
-## Linear model (centred at 1975)
-
-```{r}
-```
-
-## Prediction for 2004
-
-```{r}
-```
+**Interpretation.** `PM10 ~ Fuel` shows a clear funnel (variance grows with the fit) — classic heteroscedasticity pointing to a log of the response. `log(PM10) ~ Fuel` removes the funnel but leaves curvature in the loess line because `Fuel` is right-skewed. `log(PM10) ~ log(Fuel)` flattens both the trend and the spread, so we take **x = log(Fuel)**.
