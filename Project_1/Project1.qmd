@@ -18,36 +18,30 @@ editor: visual
 #| warning: false
 
 library(tidyverse)
-load("../Pb_all.rda")
-Pb_myregion <- filter(Pb_all, region == "Vasternorrland")
+library(readxl)
+df <- as.data.frame(read_excel("Project1data.xlsx"))
 ```
 
 ## Exploratory summary
 
 ```{r}
-summary(Pb_myregion)
+head(df)
+glimpse(df)
+summary(df)
 ```
 
 ## Exponential model
 
 ```{r}
-#| label: fig-exp
-#| fig-cap: "Pb vs year with exponential fit."
 
-m_exp <- lm(log(Pb) ~ year, data = Pb_myregion)
-summary(m_exp)
 ```
 
 ## Linear model (centred at 1975)
 
 ```{r}
-m_lin <- lm(Pb ~ I(year - 1975), data = Pb_myregion)
-summary(m_lin)
-confint(m_lin)
 ```
 
 ## Prediction for 2004
 
 ```{r}
-predict(m_lin, newdata = data.frame(year = 2004), interval = "confidence")
 ```
