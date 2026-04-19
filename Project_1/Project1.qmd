@@ -1,0 +1,53 @@
+---
+title: "Project 1"
+author: "Björn Ahl"
+date: today
+format:
+  html:
+    toc: true
+    code-fold: false
+    embed-resources: true
+editor: visual
+---
+
+## Setup
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+library(tidyverse)
+load("../Pb_all.rda")
+Pb_myregion <- filter(Pb_all, region == "Vasternorrland")
+```
+
+## Exploratory summary
+
+```{r}
+summary(Pb_myregion)
+```
+
+## Exponential model
+
+```{r}
+#| label: fig-exp
+#| fig-cap: "Pb vs year with exponential fit."
+
+m_exp <- lm(log(Pb) ~ year, data = Pb_myregion)
+summary(m_exp)
+```
+
+## Linear model (centred at 1975)
+
+```{r}
+m_lin <- lm(Pb ~ I(year - 1975), data = Pb_myregion)
+summary(m_lin)
+confint(m_lin)
+```
+
+## Prediction for 2004
+
+```{r}
+predict(m_lin, newdata = data.frame(year = 2004), interval = "confidence")
+```
