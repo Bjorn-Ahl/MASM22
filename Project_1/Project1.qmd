@@ -65,3 +65,82 @@ plot_resid(m_raw,    "PM10 ~ Fuel") +
 ```
 
 **Interpretation.** `PM10 ~ Fuel` shows a clear funnel (variance grows with the fit) — classic heteroscedasticity pointing to a log of the response. `log(PM10) ~ Fuel` removes the funnel but leaves curvature in the loess line because `Fuel` is right-skewed. `log(PM10) ~ log(Fuel)` flattens both the trend and the spread, so we take **x = log(Fuel)**.
+
+
+
+
+## 1(b) Confidence interval, predicition interval and $\beta$-estimates
+
+In this part-question, we are interested to obtain the $\beta$-estimates and their 95 % confidence intervals when x=ln(Fuel). 
+
+
+```{r}
+
+mymodel <- lm(PM10 ~ log(Fuel), data=df)
+mymodel_summary <- summary(mymodel)
+mymodel$coefficients
+confint(mymodel)
+
+another_model <- lm(log(PM10) ~ log(Fuel), data=df)
+
+# This need for smoother curves
+new_data <- data.frame(Fuel = seq(min(df$Fuel), max(df$Fuel), length.out = 100))
+
+pred_int = predict(another_model, newdata = new_data, interval = "prediction")
+
+conf_int <- predict(another_model, newdata = new_data, interval = "confidence")
+
+plot_df <- data.frame(
+  Fuel = new_data$Fuel,
+  fit = conf_int[, "fit"],
+  ci_lower = conf_int[, "lwr"],
+  ci_upper = conf_int[, "upr"],
+  pi_lower = pred_int[, "lwr"],
+  pi_upper = pred_int[, "upr"]
+)
+
+# Plot
+ggplot() +
+  geom_point(data = df, aes(x = log(Fuel), y = log(PM10))) +
+  geom_ribbon(data = plot_df, aes(x = log(Fuel), ymin = pi_lower, ymax = pi_upper),
+              alpha = 0.2, fill = "blue") +
+  geom_ribbon(data = plot_df, aes(x = log(Fuel), ymin = ci_lower, ymax = ci_upper),
+              alpha = 0.4, fill = "blue") +
+  geom_line(data = plot_df, aes(x = log(Fuel), y = fit), color = "red") +
+  labs(x = "ln(Fuel)", y = "ln(PM10)", title = "ln(PM10) vs ln(Fuel)") +
+  theme_minimal()
+
+# Transforming the data from log-scale
+e_conf_int <- exp(predict(another_model, newdata = new_data, interval = "confidence"))
+
+e_pred_int <- exp(predict(another_model, newdata = new_data, interval = "prediction"))
+
+intercept <- cbind(expbeta = exp(another_model$coefficients["(Intercept)"]),
+      exp(confint(another_model, parm = "(Intercept)"))) |>
+  round(digits = 4)
+
+slope <- cbind(expbeta = exp(another_model$coefficients["log(Fuel)"]),
+      exp(confint(another_model, parm = "log(Fuel)"))) |>
+  round(digits = 4)
+
+plot_df_e <- data.frame(
+  Fuel = new_data$Fuel,
+  fit = e_conf_int[, "fit"],
+  ci_lower = e_conf_int[, "lwr"],
+  ci_upper = e_conf_int[, "upr"],
+  pi_lower = e_pred_int[, "lwr"],
+  pi_upper = e_pred_int[, "upr"]
+)
+
+ggplot() +
+  geom_point(data = df, aes(x = Fuel, y = PM10)) +
+  geom_ribbon(data = plot_df_e, aes(x = Fuel, ymin = pi_lower, ymax = pi_upper),
+              alpha = 0.2, fill = "blue") +
+  geom_ribbon(data = plot_df_e, aes(x = Fuel, ymin = ci_lower, ymax = ci_upper),
+              alpha = 0.4, fill = "blue") +
+  geom_line(data = plot_df_e, aes(x = Fuel, y = fit), color = "red") +
+  labs(x = "Fuel", y = "PM10", title = "PM10 vs Fuel") +
+  theme_minimal()
+
+```
+
