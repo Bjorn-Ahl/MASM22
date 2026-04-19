@@ -1,6 +1,6 @@
 ---
 title: "Project 1"
-author: "Björn Ahl"
+author: "Björn Ahl, Leon Krasniqi, Nora Granström"
 date: today
 format:
   html:
@@ -21,14 +21,6 @@ library(tidyverse)
 library(readxl)
 xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "Project_1/Project1data.xlsx"
 df <- as.data.frame(read_excel(xlsx_path))
-```
-
-## Exploratory summary
-
-```{r}
-head(df)
-glimpse(df)
-summary(df)
 ```
 
 # Part 1. Particle emissions and fuel consumption
@@ -64,4 +56,31 @@ plot_resid(m_raw,    "PM10 ~ Fuel") +
   plot_resid(m_loglog, "log(PM10) ~ log(Fuel)")
 ```
 
-**Interpretation.** `PM10 ~ Fuel` shows a clear funnel (variance grows with the fit) — classic heteroscedasticity pointing to a log of the response. `log(PM10) ~ Fuel` removes the funnel but leaves curvature in the loess line because `Fuel` is right-skewed. `log(PM10) ~ log(Fuel)` flattens both the trend and the spread, so we take **x = log(Fuel)**.
+**Interpretation:**
+
+In order we have
+
+- **Linear Relationship**. In this case we have PM10 = x₀ + x₁·Fuel. From the graph we can see a stronger tendency toward the left meaning the observations cluster at lower fuel values, while the spread of PM10 widens as Fuel increases. This might imply that a purely linear relationship does not fully capture the structure of the data.
+- **logarthmic to linear**: ln(PM10) = x₀ + x₁·Fuel (Equivalent to PM10 = a·b\^Fuel. Additive change in Fuel implies *relative* change in PM10. From the residual plot we see that this is similar to the linear relationship with a heavy skew to the left. The variance is much lower however since we have logarithmically transformed. An example of this not being plausible is going from Fuel = 1 to 2 doubles fuel use, while going from 100 to 101 is a 1 % change. A single slope x₁ treats both as the same step, which is clearly wrong when municipalities differ so much in size. Hence this motivates the logarthmic to logarithmic transform.
+- **logarithm to logarithm**: ln(PM10) = x₀ + x₁·ln(Fuel) ( PM10 = a·Fuel\^{x₁}). Relative change in Fuel implies relative change in PM10, so x₁ acts as an elasticity: a 1 % increase in Fuel gives roughly an x₁ % change in PM10. This is regardless of whether we are looking at a small or large municipality. From the residual plot we see that the points are much more evenly spread across the range and the curved trend from before has largely disappeared. This matches the intuition that municipalities differ multiplicatively rather than additively in size. A small example to show this would be That a city twice as large doesn't just have 2x more cars but also 2x as much heating and industry. So these are all proportional to eachother. That is why the log-log transformation makes the most sense. Below we also make a few qq-plots to showcase that the residuals become more normal through the log-log transformation
+
+```{r}
+#| label: fig-1a-qq
+#| fig-cap: "QQ-plots of residuals for PM10~Fuel, log(PM10)~Fuel, and log(PM10)~log(Fuel)."
+#| message: false
+#| warning: false
+
+plot_qq <- function(mod, title) {
+  augment(mod) |>
+    ggplot(aes(sample = .resid)) +
+    stat_qq(alpha = .6) +
+    stat_qq_line(colour = "steelblue") +
+    labs(title = title, x = "theoretical quantiles", y = "sample quantiles")
+}
+
+plot_qq(m_raw,    "PM10 ~ Fuel") +
+  plot_qq(m_logy,   "log(PM10) ~ Fuel") +
+  plot_qq(m_loglog, "log(PM10) ~ log(Fuel)")
+```
+
+From the QQ-plots we can clearly see that the log–log transformation gives the best fit, as its residuals follow the reference line most closely and are therefore the most normally distributed of the three.
