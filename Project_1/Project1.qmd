@@ -374,3 +374,33 @@ c(R2    = summary(model_six)$r.squared,
 We did a two-sided t-test on $\beta_{\log(\text{Fuel})}$ which gives $t = 0.2171/0.0197 \approx 11$ on $t_{283}$ with $p < 2\cdot 10^{-16}$, so we reject $H_0: \beta_{\log(\text{Fuel})} = 0$ and conclude that log(Fuel) still has a significant relationship with log(PM10) after adjusting for the other five variables.
 
 **Explained variability.** From the summary, $R^2 \approx 0.7914$ and $R^2_{\text{adj}} \approx 0.7870$. Hence Model 2(c) explains about **79.1 %** of the variability in log(PM10) between municipalities (≈ 78.7 % after adjusting for the number of predictors).
+
+## 2(e)
+
+```{r}
+df$Part <- as.factor(df$Part)
+table(df$Part)
+model_eight<- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors) + df$Part, data = df)
+summary(model_eight)
+
+
+
+```
+
+Part 1: 140 obs
+
+Part 2: 96 obs
+
+Part 3: 54 obs
+
+              Estimate Std. Error
+(Intercept)   -6.85697    1.45193
+log(Fuel)      0.22538    0.01955
+log(GRP)       0.08315    0.04133
+log(Income)    0.25515    0.24166
+log(Vehicles)  0.55362    0.13839
+log(Builton)   0.12510    0.05027
+log(Higheds)  -0.06857    0.07007  -
+log(Seniors)   0.45357    0.10837
+df$Part2      -0.07334    0.03025
+df$Part3      -0.10051    0.04533
