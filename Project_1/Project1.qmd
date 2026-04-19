@@ -161,9 +161,9 @@ slope <- cbind(
 ## 1(c) Effect of changing fuel consumption
 
 Model 1(b) is the log–log model
-$$\ln(\text{PM10}) = \beta_0 + \beta_1 \ln(\text{Fuel}) \;\Longleftrightarrow\; \text{PM10} = a \cdot \text{Fuel}^{\beta_1}, \quad a = e^{\beta_0}.$$
+$$\ln(\text{PM10}) = \beta_0 + \beta_1 \ln(\text{Fuel}) \;\Longleftrightarrow\; \text{PM10} = a \cdot \text{Fuel}^{\beta_1}, \quad a = e^{\beta_0}.$$ 
 
-Here $\beta_1$ is an elasticity: if Fuel is multiplied by a factor $k$, PM10 is multiplied by $k^{\beta_1}$.
+Here $\beta_1$ is an elasticity: if Fuel is multiplied by a factor $k$, PM10 is multiplied by $k^{\beta_1}$. 
 
 **Change rate for a 10 % decrease in Fuel.** Let $k = 0.9$, so the new Fuel is $0.9\,\text{Fuel}_{\text{old}}$. Then
 $$\frac{\text{PM10}_{\text{new}}}{\text{PM10}_{\text{old}}} = \left(\frac{0.9\,\text{Fuel}_{\text{old}}}{\text{Fuel}_{\text{old}}}\right)^{\beta_1} = 0.9^{\beta_1},$$
@@ -173,7 +173,7 @@ With the 95 % CI for $\beta_1$ given by $[L,\,U] = \widehat{\beta}_1 \pm t_{0.97
 $$\text{CI}_{95\%}(r) = \bigl[\,0.9^{U},\;0.9^{L}\,\bigr].$$
 
 **Fuel reduction required to halve PM10.** We solve $k^{\beta_1} = 0.5$ for $k$:
-$$k = 0.5^{1/\beta_1}, \qquad \text{required reduction} = (1 - 0.5^{1/\beta_1})\cdot 100\%.$$
+$$k = 0.5^{1/\beta_1}, \qquad \text{required reduction} = (1 - 0.5^{1/\beta_1})\cdot 100\%.$$ 
 
 The map $\beta_1 \mapsto 0.5^{1/\beta_1}$ is **increasing** for $\beta_1 > 0$, so
 $$\text{CI}_{95\%}(k) = \bigl[\,0.5^{1/L},\;0.5^{1/U}\,\bigr],$$
@@ -204,3 +204,15 @@ round(rbind(
 ), 2)
 ```
 
+## 1(d) Testing of the model
+
+In this part, we are interested to test if there is a significant relationship between `log(PM10)` and `log(Fuel)`, according to the linear regression model. We can do this by testing the null hypothesis $H_0: \beta_1 = 0$ against the alternative $H_1: \beta_1 \neq 0$.
+
+```{r}
+
+another_model_summary <- summary(another_model)
+another_model_summary$coefficients
+
+```
+
+The p-value for the slope coefficient `log(Fuel)` (in Pr(>|t|)) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`.
