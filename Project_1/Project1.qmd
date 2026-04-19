@@ -86,12 +86,12 @@ plot_qq(m_raw,    "PM10 ~ Fuel") +
 
 From the QQ-plots we can clearly see that the log–log transformation gives the best fit, as its residuals follow the reference line most closely and are therefore the most normally distributed of the three.
 
-
 ## 1(b) Confidence interval, prediction interval and $\beta$-estimates
 
 In this part-question, we obtain the $\beta$-estimates and their 95% confidence intervals when `x = ln(Fuel)`.
 
 ```{r}
+#| label: fig-1b-model
 
 mymodel <- lm(PM10 ~ log(Fuel), data = df)
 mymodel_summary <- summary(mymodel)
@@ -163,24 +163,17 @@ slope <- cbind(
 
 ## 1(c) Effect of changing fuel consumption
 
-Model 1(b) is the log–log model
-$$\ln(\text{PM10}) = \beta_0 + \beta_1 \ln(\text{Fuel}) \;\Longleftrightarrow\; \text{PM10} = a \cdot \text{Fuel}^{\beta_1}, \quad a = e^{\beta_0}.$$ 
+Model 1(b) is the log–log model $$\ln(\text{PM10}) = \beta_0 + \beta_1 \ln(\text{Fuel}) \;\Longleftrightarrow\; \text{PM10} = a \cdot \text{Fuel}^{\beta_1}, \quad a = e^{\beta_0}.$$
 
-Here $\beta_1$ is an elasticity: if Fuel is multiplied by a factor $k$, PM10 is multiplied by $k^{\beta_1}$. 
+Here $\beta_1$ is an elasticity: if Fuel is multiplied by a factor $k$, PM10 is multiplied by $k^{\beta_1}$.
 
-**Change rate for a 10 % decrease in Fuel.** Let $k = 0.9$, so the new Fuel is $0.9\,\text{Fuel}_{\text{old}}$. Then
-$$\frac{\text{PM10}_{\text{new}}}{\text{PM10}_{\text{old}}} = \left(\frac{0.9\,\text{Fuel}_{\text{old}}}{\text{Fuel}_{\text{old}}}\right)^{\beta_1} = 0.9^{\beta_1},$$
-giving the point estimate $\widehat{r} = 0.9^{\widehat{\beta}_1}$ and percent change $(0.9^{\widehat{\beta}_1}-1)\cdot 100\%$.
+**Change rate for a 10 % decrease in Fuel.** Let $k = 0.9$, so the new Fuel is $0.9\,\text{Fuel}_{\text{old}}$. Then $$\frac{\text{PM10}_{\text{new}}}{\text{PM10}_{\text{old}}} = \left(\frac{0.9\,\text{Fuel}_{\text{old}}}{\text{Fuel}_{\text{old}}}\right)^{\beta_1} = 0.9^{\beta_1},$$ giving the point estimate $\widehat{r} = 0.9^{\widehat{\beta}_1}$ and percent change $(0.9^{\widehat{\beta}_1}-1)\cdot 100\%$.
 
-With the 95 % CI for $\beta_1$ given by $[L,\,U] = \widehat{\beta}_1 \pm t_{0.975,\,n-2}\cdot \text{SE}(\widehat{\beta}_1)$, the map $\beta_1 \mapsto 0.9^{\beta_1}$ is **decreasing** (since $0.9 < 1$), so
-$$\text{CI}_{95\%}(r) = \bigl[\,0.9^{U},\;0.9^{L}\,\bigr].$$
+With the 95 % CI for $\beta_1$ given by $[L,\,U] = \widehat{\beta}_1 \pm t_{0.975,\,n-2}\cdot \text{SE}(\widehat{\beta}_1)$, the map $\beta_1 \mapsto 0.9^{\beta_1}$ is **decreasing** (since $0.9 < 1$), so $$\text{CI}_{95\%}(r) = \bigl[\,0.9^{U},\;0.9^{L}\,\bigr].$$
 
-**Fuel reduction required to halve PM10.** We solve $k^{\beta_1} = 0.5$ for $k$:
-$$k = 0.5^{1/\beta_1}, \qquad \text{required reduction} = (1 - 0.5^{1/\beta_1})\cdot 100\%.$$ 
+**Fuel reduction required to halve PM10.** We solve $k^{\beta_1} = 0.5$ for $k$: $$k = 0.5^{1/\beta_1}, \qquad \text{required reduction} = (1 - 0.5^{1/\beta_1})\cdot 100\%.$$
 
-The map $\beta_1 \mapsto 0.5^{1/\beta_1}$ is **increasing** for $\beta_1 > 0$, so
-$$\text{CI}_{95\%}(k) = \bigl[\,0.5^{1/L},\;0.5^{1/U}\,\bigr],$$
-and the CI for the reduction is $\bigl[\,1 - 0.5^{1/U},\;1 - 0.5^{1/L}\,\bigr]\cdot 100\%.$
+The map $\beta_1 \mapsto 0.5^{1/\beta_1}$ is **increasing** for $\beta_1 > 0$, so $$\text{CI}_{95\%}(k) = \bigl[\,0.5^{1/L},\;0.5^{1/U}\,\bigr],$$ and the CI for the reduction is $\bigl[\,1 - 0.5^{1/U},\;1 - 0.5^{1/L}\,\bigr]\cdot 100\%.$
 
 ```{r}
 #| label: q1c
@@ -212,6 +205,9 @@ round(rbind(
 In this part, we are interested to test if there is a significant relationship between `log(PM10)` and `log(Fuel)`, according to the linear regression model. We can do this by using a t-test on the null hypothesis $H_0: \beta_1 = 0$ against the alternative $H_1: \beta_1 \neq 0$.
 
 ```{r}
+#| label: fig-1d-testing
+#| message: false
+#| warning: false
 
 another_model_summary <- summary(another_model)
 another_model_summary$coefficients
@@ -219,93 +215,144 @@ another_model$df.residual
 
 ```
 
-The value of test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output, which in our case is approximately 13.21. The degrees of freedom is 288, which means that it follow a t-distribution with 288 degrees of freedom. The p-value for the slope coefficient `log(Fuel)` (Pr(>|t|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`. 
+The value of the test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output. The p-value for the slope coefficient `log(Fuel)` (Pr(>|t|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`.
 
+## Part 2(a) Log-transformations of numerical x-variables
 
-## 2(c) $\beta$-estimates of numerical variables and computation of VIF-values. 
+We plot log(PM10) against each of the other numerical variables (Fuel through GRP) to determine which of them should also be log-transformed.
 
-In this section, we fit a multiple linear regression model with log(PM10) as the response variable and of all seven log-transformed numerical variables to present the $\beta$-estimates and their standard errors. We will also compute VIF-values (Variance Inflation factor) in order to determine if all the predictors are necessary in the model or if some of them can be removed due to multicollinearity. 
+```{r}
+#| label: fig-2a
+#| fig-cap: "log(PM10) against each of the numerical x-variables."
+#| message: false
+#| warning: false
 
+df |> select(Kommun, Fuel:PM10) |>
+  pivot_longer(cols = Fuel:GRP) |>
+  ggplot(aes(x = value, y = PM10)) +
+  geom_point() +
+  facet_wrap(~ name, scales = "free_x") +
+  scale_y_log10()
+```
 
+**What to log (per PDF rules):**
+
+- **Fuel, Builton** — points squished left as well as long right tail $\implies$ Skewed $\implies$ Log
+- **Income, GRP** — economic variables (The pdf hints that we should log this) relative change more natural $\implies$ **Log.**
+- **Higheds** Not really skewed, this is bounded in percentage as well. $\implies$ **No log.**
+- **Vehicles, Seniors** spread evenly across axis $\implies$ **No log.**
+
+# 2(b) Pair-wise correlations
+
+We now want to investigate the pair-wise correlation of the numerical x variables. We want to see which ones have a strong correlation between each other, meaning an absolute value greater than or equal to 0.7. The results are visualized in the plot and summarized in a correlation matrix.
+
+```{r}
+#| label: fig-2b
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(GGally)
+
+df2 <- df |> 
+  select(Kommun, Fuel:GRP)
+
+df_long <- df2 |> 
+  pivot_longer(cols = Fuel:GRP) |> 
+  mutate(value = log(value))
+
+df_wide <- df_long |> 
+  pivot_wider(
+    id_cols = Kommun,
+    names_from = name,
+    values_from = value,
+    names_prefix = "log_"
+  )
+
+df_wide <- df_wide |> select(-Kommun)
+
+ggpairs(df_wide)
+
+cor_matrix <- cor(df_wide)
+
+library(knitr)
+
+cor_matrix |> 
+  round(2) |> 
+  kable()
+```
+
+## 2(c) $\beta$-estimates of numerical variables and computation of VIF-values.
+
+In this section, we fit a multiple linear regression model with log(PM10) as the response variable and all seven log-transformed numerical variables to present the $\beta$-estimates and their standard errors. We will also compute VIF-values (variance inflation factors) to determine whether the predictors should remain in the model.
 
 ```{r}
 
 model_seven <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors), data = df)
 summary(model_seven)
 
-# This show VIF-values for each predictor in the model. 
 vif(model_seven)
 
-# Here we create a barplot to visualize the VIF-values. Common threshold is 5. 
 vif_values <- vif(model_seven)
-barplot(vif_values, main="VIF Values for Predictors",xlab="Predictors", ylab="VIF", col="steelblue")
-abline(h=5, col="red")
+barplot(vif_values, main = "VIF Values for Predictors", xlab = "Predictors", ylab = "VIF", col = "steelblue")
+abline(h = 5, col = "red")
 
-# After excluding log(Builton) from the model 
 model_six <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Higheds) + log(Seniors), data = df)
 summary(model_six)
 
 vif(model_six)
 
-# Here we create a barplot to visualize the VIF-values. Common threshold is 5. 
 vif_values1 <- vif(model_six)
-barplot(vif_values1, main="VIF Values for Predictors",xlab="Predictors", ylab="VIF", col="steelblue")
-abline(h=5, col="red")
+barplot(vif_values1, main = "VIF Values for Predictors", xlab = "Predictors", ylab = "VIF", col = "steelblue")
+abline(h = 5, col = "red")
 
 ```
 
-When fitting the model for log-$PM_{10}$ with all seven log-transformed numerical predictors, we obtain the $\beta$-estimates and their standard errors from the summary output. These are (before exluding any predictor):
+When fitting the model for log-$PM_{10}$ with all seven log-transformed numerical predictors, we obtain the $\beta$-estimates and their standard errors from the summary output. These are (before excluding any predictor):
 
-
-
-Below is a table of the VIF-values for each of predictor in the model before excluding a $x$-variable. 
+Below is a table of the VIF-values for each predictor before excluding a variable.
 
 | Predictor   | Estimate | Std. Error |
 |-------------|----------|------------|
 | Intercept   |    |  |
 | log(Fuel)   |   |  |
-| log(GRP)    |    | |
+| log(GRP)    |    |  |
 | log(Income) |   |  |
 | log(Vehicles) |  | |
 | log(Builton) |  |  |
 | log(Higheds) |  |  |
 | log(Seniors) |   |  |
 
-| Predictor   | VIF-values|
-|-------------|----------|
-| log(Fuel)   |      |
-| log(GRP)    |      |
-| log(Income) |      |
-| log(Vehicles) |    |
-| log(Builton) |     |
-| log(Higheds) |    |
-| log(Seniors) |    |
+| Predictor    | VIF-values |
+|--------------|------------|
+| log(Fuel)    |            |
+| log(GRP)     |            |
+| log(Income)  |            |
+| log(Vehicles)|            |
+| log(Builton) |            |
+| log(Higheds) |            |
+| log(Seniors) |            |
 
+By observing the VIF-values, we can see that `log(Vehicles)` and `log(Builton)` have higher VIF-values, which indicates multicollinearity. This can make coefficient estimates unstable and harder to interpret. Therefore, it may be advisable to exclude one of these predictors.
 
-By observing the VIF-values, we can see that `log(Vehicles)` and `log(Builton)` have VIF-values around or higher than 10, which indicates a high degree of multicollinearity exists. This suggests that these two predictors may be highly correlated with each other or with other predictors in the model, which can lead to unstable estimates of the coefficients and make it difficult to interpret the effects of individual predictors. Therefore, it may be a good idea to consider removing one or both of these predictors from the model to reduce multicollinearity and improve the stability of the estimates. In our case, it seems resonable to exclude `log(Builton)` from the model, since it has the highest VIF-value. After excluding `log(Builton)` from the model, we can refit the model and obtain the new $\beta$-estimates, standard errors, and VIF-values for the remaining predictors. These are (after excluding `log(Builton)`):
-
+After excluding `log(Builton)` from the model, the updated estimates are:
 
 | Predictor   | Estimate | Std. Error |
 |-------------|----------|------------|
-| Intercept   | -7.25934   | 1.42744 |
-| log(Fuel)   | 0.21710   | 0.01971 |
-| log(GRP)    | 0.07498   | 0.04190 |
+| Intercept   | -7.25934 | 1.42744 |
+| log(Fuel)   | 0.21710  | 0.01971 |
+| log(GRP)    | 0.07498  | 0.04190 |
 | log(Income) | 0.17419  | 0.24138 |
 | log(Vehicles) | 0.75389 | 0.07182 |
-| log(Higheds) | -0.12972 | 0.06589|
+| log(Higheds) | -0.12972 | 0.06589 |
 | log(Seniors) | 0.55470  | 0.10618 |
 
-| Predictor   | VIF-values|
-|-------------|----------|
-| log(Fuel)   | 1.399104      |
-| log(GRP)    | 1.291286      |
-| log(Income) | 1.959979     |
-| log(Vehicles) | 2.619874   |
-| log(Higheds) | 2.700781    |
-| log(Seniors) | 2.599338    |
-
-
-
-
-
+| Predictor    | VIF-values |
+|--------------|------------|
+| log(Fuel)    | 1.399104   |
+| log(GRP)     | 1.291286   |
+| log(Income)  | 1.959979   |
+| log(Vehicles)| 2.619874   |
+| log(Higheds) | 2.700781   |
+| log(Seniors) | 2.599338   |
 
