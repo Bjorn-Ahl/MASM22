@@ -19,6 +19,9 @@ editor: visual
 
 library(tidyverse)
 library(readxl)
+library(car)
+library(rstatix)
+library(GGally)
 xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "Project_1/Project1data.xlsx"
 df <- as.data.frame(read_excel(xlsx_path))
 ```
@@ -217,3 +220,92 @@ another_model$df.residual
 ```
 
 The value of test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output, which in our case is approximately 13.21. The degrees of freedom is 288, which means that it follow a t-distribution with 288 degrees of freedom. The p-value for the slope coefficient `log(Fuel)` (Pr(>|t|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`. 
+
+
+## 2(c) $\beta$-estimates of numerical variables and computation of VIF-values. 
+
+In this section, we fit a multiple linear regression model with log(PM10) as the response variable and of all seven log-transformed numerical variables to present the $\beta$-estimates and their standard errors. We will also compute VIF-values (Variance Inflation factor) in order to determine if all the predictors are necessary in the model or if some of them can be removed due to multicollinearity. 
+
+
+
+```{r}
+
+model_seven <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors), data = df)
+summary(model_seven)
+
+# This show VIF-values for each predictor in the model. 
+vif(model_seven)
+
+# Here we create a barplot to visualize the VIF-values. Common threshold is 5. 
+vif_values <- vif(model_seven)
+barplot(vif_values, main="VIF Values for Predictors",xlab="Predictors", ylab="VIF", col="steelblue")
+abline(h=5, col="red")
+
+# After excluding log(Builton) from the model 
+model_six <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Higheds) + log(Seniors), data = df)
+summary(model_six)
+
+vif(model_six)
+
+# Here we create a barplot to visualize the VIF-values. Common threshold is 5. 
+vif_values1 <- vif(model_six)
+barplot(vif_values1, main="VIF Values for Predictors",xlab="Predictors", ylab="VIF", col="steelblue")
+abline(h=5, col="red")
+
+```
+
+When fitting the model for log-$PM_{10}$ with all seven log-transformed numerical predictors, we obtain the $\beta$-estimates and their standard errors from the summary output. These are (before exluding any predictor):
+
+
+
+Below is a table of the VIF-values for each of predictor in the model before excluding a $x$-variable. 
+
+| Predictor   | Estimate | Std. Error |
+|-------------|----------|------------|
+| Intercept   |    |  |
+| log(Fuel)   |   |  |
+| log(GRP)    |    | |
+| log(Income) |   |  |
+| log(Vehicles) |  | |
+| log(Builton) |  |  |
+| log(Higheds) |  |  |
+| log(Seniors) |   |  |
+
+| Predictor   | VIF-values|
+|-------------|----------|
+| log(Fuel)   |      |
+| log(GRP)    |      |
+| log(Income) |      |
+| log(Vehicles) |    |
+| log(Builton) |     |
+| log(Higheds) |    |
+| log(Seniors) |    |
+
+
+By observing the VIF-values, we can see that `log(Vehicles)` and `log(Builton)` have VIF-values around or higher than 10, which indicates a high degree of multicollinearity exists. This suggests that these two predictors may be highly correlated with each other or with other predictors in the model, which can lead to unstable estimates of the coefficients and make it difficult to interpret the effects of individual predictors. Therefore, it may be a good idea to consider removing one or both of these predictors from the model to reduce multicollinearity and improve the stability of the estimates. In our case, it seems resonable to exclude `log(Builton)` from the model, since it has the highest VIF-value. After excluding `log(Builton)` from the model, we can refit the model and obtain the new $\beta$-estimates, standard errors, and VIF-values for the remaining predictors. These are (after excluding `log(Builton)`):
+
+
+| Predictor   | Estimate | Std. Error |
+|-------------|----------|------------|
+| Intercept   | -7.25934   | 1.42744 |
+| log(Fuel)   | 0.21710   | 0.01971 |
+| log(GRP)    | 0.07498   | 0.04190 |
+| log(Income) | 0.17419  | 0.24138 |
+| log(Vehicles) | 0.75389 | 0.07182 |
+| log(Higheds) | -0.12972 | 0.06589|
+| log(Seniors) | 0.55470  | 0.10618 |
+
+| Predictor   | VIF-values|
+|-------------|----------|
+| log(Fuel)   | 1.399104      |
+| log(GRP)    | 1.291286      |
+| log(Income) | 1.959979     |
+| log(Vehicles) | 2.619874   |
+| log(Higheds) | 2.700781    |
+| log(Seniors) | 2.599338    |
+
+
+
+
+
+
