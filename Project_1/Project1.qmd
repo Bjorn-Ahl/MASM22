@@ -83,7 +83,6 @@ plot_qq(m_raw,    "PM10 ~ Fuel") +
 
 From the QQ-plots we can clearly see that the log–log transformation gives the best fit, as its residuals follow the reference line most closely and are therefore the most normally distributed of the three.
 
-
 ## 1(b) Confidence interval, prediction interval and $\beta$-estimates
 
 In this part-question, we obtain the $\beta$-estimates and their 95% confidence intervals when `x = ln(Fuel)`.
@@ -160,24 +159,17 @@ slope <- cbind(
 
 ## 1(c) Effect of changing fuel consumption
 
-Model 1(b) is the log–log model
-$$\ln(\text{PM10}) = \beta_0 + \beta_1 \ln(\text{Fuel}) \;\Longleftrightarrow\; \text{PM10} = a \cdot \text{Fuel}^{\beta_1}, \quad a = e^{\beta_0}.$$ 
+Model 1(b) is the log–log model $$\ln(\text{PM10}) = \beta_0 + \beta_1 \ln(\text{Fuel}) \;\Longleftrightarrow\; \text{PM10} = a \cdot \text{Fuel}^{\beta_1}, \quad a = e^{\beta_0}.$$
 
-Here $\beta_1$ is an elasticity: if Fuel is multiplied by a factor $k$, PM10 is multiplied by $k^{\beta_1}$. 
+Here $\beta_1$ is an elasticity: if Fuel is multiplied by a factor $k$, PM10 is multiplied by $k^{\beta_1}$.
 
-**Change rate for a 10 % decrease in Fuel.** Let $k = 0.9$, so the new Fuel is $0.9\,\text{Fuel}_{\text{old}}$. Then
-$$\frac{\text{PM10}_{\text{new}}}{\text{PM10}_{\text{old}}} = \left(\frac{0.9\,\text{Fuel}_{\text{old}}}{\text{Fuel}_{\text{old}}}\right)^{\beta_1} = 0.9^{\beta_1},$$
-giving the point estimate $\widehat{r} = 0.9^{\widehat{\beta}_1}$ and percent change $(0.9^{\widehat{\beta}_1}-1)\cdot 100\%$.
+**Change rate for a 10 % decrease in Fuel.** Let $k = 0.9$, so the new Fuel is $0.9\,\text{Fuel}_{\text{old}}$. Then $$\frac{\text{PM10}_{\text{new}}}{\text{PM10}_{\text{old}}} = \left(\frac{0.9\,\text{Fuel}_{\text{old}}}{\text{Fuel}_{\text{old}}}\right)^{\beta_1} = 0.9^{\beta_1},$$ giving the point estimate $\widehat{r} = 0.9^{\widehat{\beta}_1}$ and percent change $(0.9^{\widehat{\beta}_1}-1)\cdot 100\%$.
 
-With the 95 % CI for $\beta_1$ given by $[L,\,U] = \widehat{\beta}_1 \pm t_{0.975,\,n-2}\cdot \text{SE}(\widehat{\beta}_1)$, the map $\beta_1 \mapsto 0.9^{\beta_1}$ is **decreasing** (since $0.9 < 1$), so
-$$\text{CI}_{95\%}(r) = \bigl[\,0.9^{U},\;0.9^{L}\,\bigr].$$
+With the 95 % CI for $\beta_1$ given by $[L,\,U] = \widehat{\beta}_1 \pm t_{0.975,\,n-2}\cdot \text{SE}(\widehat{\beta}_1)$, the map $\beta_1 \mapsto 0.9^{\beta_1}$ is **decreasing** (since $0.9 < 1$), so $$\text{CI}_{95\%}(r) = \bigl[\,0.9^{U},\;0.9^{L}\,\bigr].$$
 
-**Fuel reduction required to halve PM10.** We solve $k^{\beta_1} = 0.5$ for $k$:
-$$k = 0.5^{1/\beta_1}, \qquad \text{required reduction} = (1 - 0.5^{1/\beta_1})\cdot 100\%.$$ 
+**Fuel reduction required to halve PM10.** We solve $k^{\beta_1} = 0.5$ for $k$: $$k = 0.5^{1/\beta_1}, \qquad \text{required reduction} = (1 - 0.5^{1/\beta_1})\cdot 100\%.$$
 
-The map $\beta_1 \mapsto 0.5^{1/\beta_1}$ is **increasing** for $\beta_1 > 0$, so
-$$\text{CI}_{95\%}(k) = \bigl[\,0.5^{1/L},\;0.5^{1/U}\,\bigr],$$
-and the CI for the reduction is $\bigl[\,1 - 0.5^{1/U},\;1 - 0.5^{1/L}\,\bigr]\cdot 100\%.$
+The map $\beta_1 \mapsto 0.5^{1/\beta_1}$ is **increasing** for $\beta_1 > 0$, so $$\text{CI}_{95\%}(k) = \bigl[\,0.5^{1/L},\;0.5^{1/U}\,\bigr],$$ and the CI for the reduction is $\bigl[\,1 - 0.5^{1/U},\;1 - 0.5^{1/L}\,\bigr]\cdot 100\%.$
 
 ```{r}
 #| label: q1c
@@ -216,4 +208,29 @@ another_model$df.residual
 
 ```
 
-The value of test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output, which in our case is approximately 13.21. The degrees of freedom is 288, which means that it follow a t-distribution with 288 degrees of freedom. The p-value for the slope coefficient `log(Fuel)` (Pr(>|t|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`. 
+The value of test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output, which in our case is approximately 13.21. The degrees of freedom is 288, which means that it follow a t-distribution with 288 degrees of freedom. The p-value for the slope coefficient `log(Fuel)` (Pr(\>\|t\|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`.
+
+## Part 2(a) Log-transformations of numerical x-variables
+
+We plot log(PM10) against each of the other numerical variables (Fuel through GRP) to determine which of them should also be log-transformed.
+
+```{r}
+#| label: fig-2a
+#| fig-cap: "log(PM10) against each of the numerical x-variables."
+#| message: False
+#| warning: False
+
+df |> select(Kommun, Fuel:PM10) |>
+  pivot_longer(cols = Fuel:GRP) |>
+  ggplot(aes(x = value, y = PM10)) +
+  geom_point() +
+  facet_wrap(~ name, scales = "free_x") +
+  scale_y_log10()
+```
+
+**What to log (per PDF rules):**
+
+- **Fuel, Builton** — points squished left as well as long right tail $\implies$ Skewed $\implies$ Log
+- **Income, GRP** — economic variables (The pdf hints that we should log this) relative change more natural $\implies$ **Log.**
+- **Higheds** Not really skewed, this is bounded in percentage as well. $\implies$ **No log.**
+- **Vehicles, Seniors** spread evenly across axis $\implies$ **No log.**
