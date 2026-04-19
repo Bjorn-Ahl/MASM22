@@ -206,13 +206,14 @@ round(rbind(
 
 ## 1(d) Testing of the model
 
-In this part, we are interested to test if there is a significant relationship between `log(PM10)` and `log(Fuel)`, according to the linear regression model. We can do this by testing the null hypothesis $H_0: \beta_1 = 0$ against the alternative $H_1: \beta_1 \neq 0$.
+In this part, we are interested to test if there is a significant relationship between `log(PM10)` and `log(Fuel)`, according to the linear regression model. We can do this by using a t-test on the null hypothesis $H_0: \beta_1 = 0$ against the alternative $H_1: \beta_1 \neq 0$.
 
 ```{r}
 
 another_model_summary <- summary(another_model)
 another_model_summary$coefficients
+another_model$df.residual
 
 ```
 
-The p-value for the slope coefficient `log(Fuel)` (Pr(>|t|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`. 
+The value of test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output, which in our case is approximately 13.21. The degrees of freedom is 288, which means that it follow a t-distribution with 288 degrees of freedom. The p-value for the slope coefficient `log(Fuel)` (Pr(>|t|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`. 
