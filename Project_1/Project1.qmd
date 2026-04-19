@@ -275,11 +275,6 @@ ggpairs(df_wide)
 
 cor_matrix <- cor(df_wide)
 
-library(knitr)
-
-cor_matrix |> 
-  round(2) |> 
-  kable()
 ```
 
 ## 2(c) $\beta$-estimates of numerical variables and computation of VIF-values.
