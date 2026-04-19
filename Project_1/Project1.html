@@ -2210,7 +2210,6 @@ vertical-align: -.125em;
    
   <ul>
   <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
-  <li><a href="#exploratory-summary" id="toc-exploratory-summary" class="nav-link" data-scroll-target="#exploratory-summary">Exploratory summary</a></li>
   <li><a href="#part-1.-particle-emissions-and-fuel-consumption" id="toc-part-1.-particle-emissions-and-fuel-consumption" class="nav-link" data-scroll-target="#part-1.-particle-emissions-and-fuel-consumption">Part 1. Particle emissions and fuel consumption</a>
   <ul class="collapse">
   <li><a href="#a-choice-of-transformations" id="toc-a-choice-of-transformations" class="nav-link" data-scroll-target="#a-choice-of-transformations">1(a) Choice of transformations</a></li>
@@ -2260,94 +2259,31 @@ vertical-align: -.125em;
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">read_excel</span>(xlsx_path))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="exploratory-summary" class="level2">
-<h2 class="anchored" data-anchor-id="exploratory-summary">Exploratory summary</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>               Kommun            County Part Coastal Fuel Vehicles Builton
-1 0114 Upplands Väsby 01 Stockholms län    2       0  6.1    535.6      34
-2     0115 Vallentuna 01 Stockholms län    2       0 12.0    780.8      90
-3      0117 Österåker 01 Stockholms län    2       1  3.9    707.7     108
-4         0120 Värmdö 01 Stockholms län    2       1 10.4    684.7     182
-5       0123 Järfälla 01 Stockholms län    2       0 12.0    485.1      23
-6          0125 Ekerö 01 Stockholms län    2       0  7.2    724.9     113
-  Seniors Higheds Income GRP PM10
-1    16.7    16.6  299.1 339  1.6
-2    16.1    19.2  341.5 249  2.4
-3    18.5    18.6  342.5 227  2.3
-4    17.8    18.2  340.5 265  2.9
-5    16.4    19.3  301.4 343  1.6
-6    17.4    20.8  365.6 260  2.3</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Rows: 290
-Columns: 12
-$ Kommun   &lt;chr&gt; &quot;0114 Upplands Väsby&quot;, &quot;0115 Vallentuna&quot;, &quot;0117 Österåker&quot;, &quot;…
-$ County   &lt;chr&gt; &quot;01 Stockholms län&quot;, &quot;01 Stockholms län&quot;, &quot;01 Stockholms län&quot;…
-$ Part     &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2…
-$ Coastal  &lt;dbl&gt; 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1…
-$ Fuel     &lt;dbl&gt; 6.1, 12.0, 3.9, 10.4, 12.0, 7.2, 11.1, 9.2, 5.9, 10.2, 9.7, 1…
-$ Vehicles &lt;dbl&gt; 535.6, 780.8, 707.7, 684.7, 485.1, 724.9, 479.8, 433.2, 528.9…
-$ Builton  &lt;dbl&gt; 34, 90, 108, 182, 23, 113, 34, 35, 42, 61, 41, 86, 127, 33, 4…
-$ Seniors  &lt;dbl&gt; 16.7, 16.1, 18.5, 17.8, 16.4, 17.4, 13.8, 14.3, 17.5, 15.0, 1…
-$ Higheds  &lt;dbl&gt; 16.6, 19.2, 18.6, 18.2, 19.3, 20.8, 19.6, 13.6, 18.2, 12.9, 1…
-$ Income   &lt;dbl&gt; 299.1, 341.5, 342.5, 340.5, 301.4, 365.6, 305.6, 265.7, 325.6…
-$ GRP      &lt;dbl&gt; 339, 249, 227, 265, 343, 260, 411, 245, 132, 311, 213, 376, 2…
-$ PM10     &lt;dbl&gt; 1.6, 2.4, 2.3, 2.9, 1.6, 2.3, 1.5, 1.5, 1.6, 1.8, 1.5, 2.0, 2…</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>    Kommun             County               Part          Coastal   
- Length:290         Length:290         Min.   :1.000   Min.   :0.0  
- Class :character   Class :character   1st Qu.:1.000   1st Qu.:0.0  
- Mode  :character   Mode  :character   Median :2.000   Median :0.0  
-                                       Mean   :1.703   Mean   :0.3  
-                                       3rd Qu.:2.000   3rd Qu.:1.0  
-                                       Max.   :3.000   Max.   :1.0  
-      Fuel           Vehicles         Builton          Seniors     
- Min.   :  3.80   Min.   : 366.9   Min.   :   8.0   Min.   :12.80  
- 1st Qu.: 14.20   1st Qu.: 814.2   1st Qu.: 112.0   1st Qu.:21.02  
- Median : 20.15   Median : 986.8   Median : 193.0   Median :24.90  
- Mean   : 36.47   Mean   :1024.2   Mean   : 264.8   Mean   :24.41  
- 3rd Qu.: 31.77   3rd Qu.:1160.7   3rd Qu.: 310.8   3rd Qu.:27.90  
- Max.   :504.70   Max.   :2223.5   Max.   :1602.0   Max.   :37.50  
-    Higheds          Income           GRP              PM10       
- Min.   : 7.00   Min.   :256.1   Min.   : 132.0   Min.   : 0.900  
- 1st Qu.: 9.80   1st Qu.:276.1   1st Qu.: 281.2   1st Qu.: 3.200  
- Median :12.00   Median :283.5   Median : 345.0   Median : 4.400  
- Mean   :13.47   Mean   :290.0   Mean   : 394.1   Mean   : 4.968  
- 3rd Qu.:15.60   3rd Qu.:294.0   3rd Qu.: 446.0   3rd Qu.: 5.900  
- Max.   :38.00   Max.   :433.0   Max.   :2159.0   Max.   :33.800  </code></pre>
-</div>
-</div>
-</section>
 <section id="part-1.-particle-emissions-and-fuel-consumption" class="level1">
 <h1>Part 1. Particle emissions and fuel consumption</h1>
 <section id="a-choice-of-transformations" class="level2">
 <h2 class="anchored" data-anchor-id="a-choice-of-transformations">1(a) Choice of transformations</h2>
 <p>We compare residual plots for three candidate models to motivate the log of the response and to decide between <code>x = Fuel</code> and <code>x = log(Fuel)</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>m_raw    <span class="ot">&lt;-</span> <span class="fu">lm</span>(PM10      <span class="sc">~</span> Fuel,       <span class="at">data =</span> df)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>m_logy   <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(PM10) <span class="sc">~</span> Fuel,       <span class="at">data =</span> df)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>m_loglog <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(PM10) <span class="sc">~</span> <span class="fu">log</span>(Fuel),  <span class="at">data =</span> df)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>plot_resid <span class="ot">&lt;-</span> <span class="cf">function</span>(mod, title) {</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(mod) <span class="sc">|&gt;</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(.fitted, .resid)) <span class="sc">+</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">6</span>) <span class="sc">+</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">method =</span> <span class="st">&quot;loess&quot;</span>, <span class="at">formula =</span> y <span class="sc">~</span> x, <span class="at">colour =</span> <span class="st">&quot;steelblue&quot;</span>) <span class="sc">+</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> title, <span class="at">x =</span> <span class="st">&quot;fitted&quot;</span>, <span class="at">y =</span> <span class="st">&quot;residual&quot;</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_resid</span>(m_raw,    <span class="st">&quot;PM10 ~ Fuel&quot;</span>) <span class="sc">+</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_resid</span>(m_logy,   <span class="st">&quot;log(PM10) ~ Fuel&quot;</span>) <span class="sc">+</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_resid</span>(m_loglog, <span class="st">&quot;log(PM10) ~ log(Fuel)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m_raw    <span class="ot">&lt;-</span> <span class="fu">lm</span>(PM10      <span class="sc">~</span> Fuel,       <span class="at">data =</span> df)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m_logy   <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(PM10) <span class="sc">~</span> Fuel,       <span class="at">data =</span> df)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m_loglog <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(PM10) <span class="sc">~</span> <span class="fu">log</span>(Fuel),  <span class="at">data =</span> df)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>plot_resid <span class="ot">&lt;-</span> <span class="cf">function</span>(mod, title) {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(mod) <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(.fitted, .resid)) <span class="sc">+</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">method =</span> <span class="st">&quot;loess&quot;</span>, <span class="at">formula =</span> y <span class="sc">~</span> x, <span class="at">colour =</span> <span class="st">&quot;steelblue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> title, <span class="at">x =</span> <span class="st">&quot;fitted&quot;</span>, <span class="at">y =</span> <span class="st">&quot;residual&quot;</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_resid</span>(m_raw,    <span class="st">&quot;PM10 ~ Fuel&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_resid</span>(m_logy,   <span class="st">&quot;log(PM10) ~ Fuel&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_resid</span>(m_loglog, <span class="st">&quot;log(PM10) ~ log(Fuel)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-1a-resid" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -2361,7 +2297,20 @@ Figure 1: Residuals vs fitted for PM10~Fuel, log(PM10)~Fuel, and log(PM10)~log(
 </div>
 </div>
 </div>
-<p><strong>Interpretation.</strong> <code>PM10 ~ Fuel</code> shows a clear funnel (variance grows with the fit) — classic heteroscedasticity pointing to a log of the response. <code>log(PM10) ~ Fuel</code> removes the funnel but leaves curvature in the loess line because <code>Fuel</code> is right-skewed. <code>log(PM10) ~ log(Fuel)</code> flattens both the trend and the spread, so we take <strong>x = log(Fuel)</strong>.</p>
+<p><strong>Interpretation (using the lin-lin / log-lin / log-log framework from Lec. 2).</strong></p>
+<p>Three candidate shapes map directly onto the transformed relationships from the lecture:</p>
+<ul>
+<li><strong>lin-lin</strong>: <code>PM10 = β₀ + β₁·Fuel</code>. Additive change in Fuel → additive change in PM10. Appropriate only if the spread of PM10 is the same for small and large municipalities.</li>
+<li><strong>log-lin</strong>: <code>ln(PM10) = β₀ + β₁·Fuel</code>, i.e. <code>PM10 = a·b^Fuel</code>. Additive change in Fuel → <em>relative</em> change in PM10. Appropriate when PM10 is multiplicatively noisy but Fuel itself is not skewed.</li>
+<li><strong>log-log</strong>: <code>ln(PM10) = β₀ + β₁·ln(Fuel)</code>, i.e. <code>PM10 = a·Fuel^{β₁}</code>. A relative change in Fuel gives a relative change in PM10 — the natural parametrisation when both variables are non-negative, right-skewed and where “10 % more fuel” is more meaningful than “+3 GWh”.</li>
+</ul>
+<p>The residual plots above support choosing log-log in that order:</p>
+<ol type="1">
+<li>The <strong>lin-lin</strong> fit (<code>PM10 ~ Fuel</code>) has a strong funnel — the residual spread grows with the fitted value. That is the signature of multiplicative error on the response and motivates logging PM10 (moving from lin-lin to log-lin / log-log).</li>
+<li>The <strong>log-lin</strong> fit (<code>log(PM10) ~ Fuel</code>) stabilises the variance but leaves a curved loess trend in the residuals. Because Fuel is itself right-skewed, an additive β₁·Fuel cannot track both small and large municipalities at once.</li>
+<li>The <strong>log-log</strong> fit (<code>log(PM10) ~ log(Fuel)</code>) removes both problems: the loess curve sits on zero and the spread is roughly constant across the range.</li>
+</ol>
+<p>So we use the log on the response (heteroscedasticity argument) and <code>x = ln(Fuel)</code> rather than <code>x = Fuel</code> (curvature + skew argument), giving <strong>Model 1(b): <code>ln(PM10) = β₀ + β₁·ln(Fuel) + ε</code></strong>, a log-log relationship where the slope β₁ is the elasticity of PM10 with respect to Fuel.</p>
 </section>
 </section>
 
