@@ -217,8 +217,8 @@ We plot log(PM10) against each of the other numerical variables (Fuel through GR
 ```{r}
 #| label: fig-2a
 #| fig-cap: "log(PM10) against each of the numerical x-variables."
-#| message: False
-#| warning: False
+#| message: false
+#| warning: false
 
 df |> select(Kommun, Fuel:PM10) |>
   pivot_longer(cols = Fuel:GRP) |>
@@ -234,3 +234,43 @@ df |> select(Kommun, Fuel:PM10) |>
 - **Income, GRP** — economic variables (The pdf hints that we should log this) relative change more natural $\implies$ **Log.**
 - **Higheds** Not really skewed, this is bounded in percentage as well. $\implies$ **No log.**
 - **Vehicles, Seniors** spread evenly across axis $\implies$ **No log.**
+
+# 2(b) Pair-wise correlations
+
+We now want to investigate the pair-wise correlation of the numerical x variables. We want to see which ones have a strong correlation between each other, meaning an absolute value greater than or equal to 0.7. The results are visualized in the plot and summarized in a correlation matrix.
+
+```{r}
+#| label: fig-2b
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(GGally)
+
+df2 <- df |> 
+  select(Kommun, Fuel:GRP)
+
+df_long <- df2 |> 
+  pivot_longer(cols = Fuel:GRP) |> 
+  mutate(value = log(value))
+
+df_wide <- df_long |> 
+  pivot_wider(
+    id_cols = Kommun,
+    names_from = name,
+    values_from = value,
+    names_prefix = "log_"
+  )
+
+df_wide <- df_wide |> select(-Kommun)
+
+ggpairs(df_wide)
+
+cor_matrix <- cor(df_wide)
+
+library(knitr)
+
+cor_matrix |> 
+  round(2) |> 
+  kable()
+```
