@@ -215,7 +215,7 @@ another_model$df.residual
 
 ```
 
-The value of the test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output. The p-value for the slope coefficient `log(Fuel)` (Pr(>|t|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`.
+The value of the test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output. The p-value for the slope coefficient `log(Fuel)` (Pr(\>\|t\|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`.
 
 ## Part 2(a) Log-transformations of numerical x-variables
 
@@ -307,55 +307,55 @@ When fitting the model for log-$PM_{10}$ with all seven log-transformed numerica
 
 Below is a table of the VIF-values for each predictor before excluding a variable.
 
-| Predictor   | Estimate | Std. Error |
-|-------------|----------|------------|
-| Intercept   |  -6.41290   | 1.46047 |
-| log(Fuel)   |  0.21885 | 0.01956 |
-| log(GRP)    |   0.08475  | 0.04177 |
-| log(Income) |  0.23496 | 0.24081 |
-| log(Vehicles) | 0.48895 | 0.13271|
-| log(Builton) | 0.12031 | 0.05084 |
-| log(Higheds) |  -0.08775 | 0.06772 |
-| log(Seniors) |  0.50315 | 0.10756 |
+| Predictor     | Estimate | Std. Error |
+|---------------|----------|------------|
+| Intercept     | -6.41290 | 1.46047    |
+| log(Fuel)     | 0.21885  | 0.01956    |
+| log(GRP)      | 0.08475  | 0.04177    |
+| log(Income)   | 0.23496  | 0.24081    |
+| log(Vehicles) | 0.48895  | 0.13271    |
+| log(Builton)  | 0.12031  | 0.05084    |
+| log(Higheds)  | -0.08775 | 0.06772    |
+| log(Seniors)  | 0.50315  | 0.10756    |
 
-| Predictor    | VIF-values |
-|--------------|------------|
-| log(Fuel)    | 1.401090   |
-| log(GRP)     | 1.304027   |
-| log(Income)  | 1.982527   |
-| log(Vehicles)| 9.090458   |
-| log(Builton) | 11.120575  |
-| log(Higheds) | 2.899656   |
-| log(Seniors) | 2.710582   |
+| Predictor     | VIF-values |
+|---------------|------------|
+| log(Fuel)     | 1.401090   |
+| log(GRP)      | 1.304027   |
+| log(Income)   | 1.982527   |
+| log(Vehicles) | 9.090458   |
+| log(Builton)  | 11.120575  |
+| log(Higheds)  | 2.899656   |
+| log(Seniors)  | 2.710582   |
 
 By observing the VIF-values, we can see that `log(Vehicles)` and `log(Builton)` have higher VIF-values, which indicates multicollinearity. This can make coefficient estimates unstable and harder to interpret. Therefore, it may be advisable to exclude one of these predictors.
 
 After excluding `log(Builton)` from the model, the updated estimates are:
 
-| Predictor   | Estimate | Std. Error |
-|-------------|----------|------------|
-| Intercept   | -7.25934 | 1.42744 |
-| log(Fuel)   | 0.21710  | 0.01971 |
-| log(GRP)    | 0.07498  | 0.04190 |
-| log(Income) | 0.17419  | 0.24138 |
-| log(Vehicles) | 0.75389 | 0.07182 |
-| log(Higheds) | -0.12972 | 0.06589 |
-| log(Seniors) | 0.55470  | 0.10618 |
+| Predictor     | Estimate | Std. Error |
+|---------------|----------|------------|
+| Intercept     | -7.25934 | 1.42744    |
+| log(Fuel)     | 0.21710  | 0.01971    |
+| log(GRP)      | 0.07498  | 0.04190    |
+| log(Income)   | 0.17419  | 0.24138    |
+| log(Vehicles) | 0.75389  | 0.07182    |
+| log(Higheds)  | -0.12972 | 0.06589    |
+| log(Seniors)  | 0.55470  | 0.10618    |
 
-| Predictor    | VIF-values |
-|--------------|------------|
-| log(Fuel)    | 1.399104   |
-| log(GRP)     | 1.291286   |
-| log(Income)  | 1.959979   |
-| log(Vehicles)| 2.619874   |
-| log(Higheds) | 2.700781   |
-| log(Seniors) | 2.599338   |
+| Predictor     | VIF-values |
+|---------------|------------|
+| log(Fuel)     | 1.399104   |
+| log(GRP)      | 1.291286   |
+| log(Income)   | 1.959979   |
+| log(Vehicles) | 2.619874   |
+| log(Higheds)  | 2.700781   |
+| log(Seniors)  | 2.599338   |
 
-The second predictor that had a high VIF-value was `log(Vehicles)` with a VIF-value of 9.090458 with standard error 0.13271. After excluding `log(Builton)`, the VIF-value for `log(Vehicles)` dropped to 2.619874 with a standard error of 0.07182, which is a significant improvement and indicates that we have reduced multicollinearity in our model. Remaining predictors have VIF-values that are below the threshold, which suggest that we can keep them in the model without worrying about multicollinearity.
+The second predictor that had a high VIF-value was log(Vehicles) with a VIF-value of 9.090458 with standard error 0.13271. After excluding log(Builton), the VIF-value for log(Vehicles) dropped to 2.619874 with a standard error of 0.07182, which is a significant improvement and indicates that we have reduced multicollinearity in our model. Remaining predictors have VIF-values that are below the threshold, which suggest that we can keep them in the model without worrying about multicollinearity.
 
 ## 2(d) Significance tests and explained variability
 
-We work with Model 2(c) (`model_six`) which contains the six log-transformed x-variables `log(Fuel), log(GRP), log(Income), log(Vehicles), log(Higheds), log(Seniors)`. We assume the standard linear regression assumptions: independent errors, homoscedasticity, and normally distributed residuals. Note that Model 1(b) is nested inside Model 2(c), so a partial F-test is valid.
+We work with Model 2(c) (model_six) which contains the six log-transformed x-variables log(Fuel), log(GRP), log(Income), log(Vehicles), log(Higheds), log(Seniors). We assume the standard linear regression assumptions: independent errors and normally distributed residuals. Note that Model 1(b) is nested inside Model 2(c), so a partial F-test is valid.
 
 ```{r}
 #| label: q2d
@@ -371,8 +371,6 @@ c(R2    = summary(model_six)$r.squared,
   adjR2 = summary(model_six)$adj.r.squared)
 ```
 
-We did a two-sided t-test on $\beta_{\log(\text{Fuel})}$ which gives $t = 0.2171/0.0197 \approx 11$ on $t_{283}$ with $p < 2\cdot 10^{-16}$, so we reject $H_0: \beta_{\log(\text{Fuel})} = 0$ and conclude that `log(Fuel)` still has a significant relationship with `log(PM10)` after adjusting for the other five variables.
+We did a two-sided t-test on $\beta_{\log(\text{Fuel})}$ which gives $t = 0.2171/0.0197 \approx 11$ on $t_{283}$ with $p < 2\cdot 10^{-16}$, so we reject $H_0: \beta_{\log(\text{Fuel})} = 0$ and conclude that log(Fuel) still has a significant relationship with log(PM10) after adjusting for the other five variables.
 
-**Explained variability.**
-From the summary, $R^2 \approx 0.7914$ and $R^2_{\text{adj}} \approx 0.7870$. Hence Model 2(c) explains about **79.1 %** of the variability in `log(PM10)` between municipalities (≈ 78.7 % after adjusting for the number of predictors).
-
+**Explained variability.** From the summary, $R^2 \approx 0.7914$ and $R^2_{\text{adj}} \approx 0.7870$. Hence Model 2(c) explains about **79.1 %** of the variability in log(PM10) between municipalities (≈ 78.7 % after adjusting for the number of predictors).
