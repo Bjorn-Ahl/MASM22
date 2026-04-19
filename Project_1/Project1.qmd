@@ -215,4 +215,4 @@ another_model_summary$coefficients
 
 ```
 
-The p-value for the slope coefficient `log(Fuel)` (in Pr(>|t|)) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`.
+The p-value for the slope coefficient `log(Fuel)` (Pr(>|t|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`. 
