@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Björn Ahl, Leon Krasniqi, Nora Granström">
-<meta name="dcterms.date" content="2026-04-19">
+<meta name="dcterms.date" content="2026-04-20">
 
 <title>Project 1</title>
 <style>
@@ -2361,6 +2361,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#c-beta-estimates-of-numerical-variables-and-computation-of-vif-values." id="toc-c-beta-estimates-of-numerical-variables-and-computation-of-vif-values." class="nav-link" data-scroll-target="#c-beta-estimates-of-numerical-variables-and-computation-of-vif-values.">2(c) <span class="math inline">\(\beta\)</span>-estimates of numerical variables and computation of VIF-values.</a></li>
   <li><a href="#d-significance-tests-and-explained-variability" id="toc-d-significance-tests-and-explained-variability" class="nav-link" data-scroll-target="#d-significance-tests-and-explained-variability">2(d) Significance tests and explained variability</a></li>
+  <li><a href="#e" id="toc-e" class="nav-link" data-scroll-target="#e">2(e)</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -2386,7 +2387,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 19, 2026</p>
+      <p class="date">April 20, 2026</p>
     </div>
   </div>
   
@@ -3005,6 +3006,119 @@ F-statistic:   179 on 6 and 283 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <p>We did a two-sided t-test on <span class="math inline">\(\beta_{\log(\text{Fuel})}\)</span> which gives <span class="math inline">\(t = 0.2171/0.0197 \approx 11\)</span> on <span class="math inline">\(t_{283}\)</span> with <span class="math inline">\(p &lt; 2\cdot 10^{-16}\)</span>, so we reject <span class="math inline">\(H_0: \beta_{\log(\text{Fuel})} = 0\)</span> and conclude that log(Fuel) still has a significant relationship with log(PM10) after adjusting for the other five variables.</p>
 <p><strong>Explained variability.</strong> From the summary, <span class="math inline">\(R^2 \approx 0.7914\)</span> and <span class="math inline">\(R^2_{\text{adj}} \approx 0.7870\)</span>. Hence Model 2(c) explains about <strong>79.1 %</strong> of the variability in log(PM10) between municipalities (≈ 78.7 % after adjusting for the number of predictors).</p>
+</section>
+<section id="e" class="level2">
+<h2 class="anchored" data-anchor-id="e">2(e)</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Part <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(df<span class="sc">$</span>Part)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(df<span class="sc">$</span>Part)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  1   2   3 
+140  96  54 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>model_eight<span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(PM10) <span class="sc">~</span> <span class="fu">log</span>(Fuel) <span class="sc">+</span> <span class="fu">log</span>(GRP) <span class="sc">+</span> <span class="fu">log</span>(Income) <span class="sc">+</span> <span class="fu">log</span>(Vehicles) <span class="sc">+</span> <span class="fu">log</span>(Builton) <span class="sc">+</span> <span class="fu">log</span>(Higheds) <span class="sc">+</span> <span class="fu">log</span>(Seniors) <span class="sc">+</span> df<span class="sc">$</span>Part, <span class="at">data =</span> df)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_eight)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + 
+    log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors) + 
+    df$Part, data = df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.48983 -0.12831 -0.03352  0.10531  1.08416 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   -6.85697    1.45193  -4.723 3.69e-06 ***
+log(Fuel)      0.22538    0.01955  11.528  &lt; 2e-16 ***
+log(GRP)       0.08315    0.04133   2.012   0.0452 *  
+log(Income)    0.25515    0.24166   1.056   0.2920    
+log(Vehicles)  0.55362    0.13839   4.001 8.09e-05 ***
+log(Builton)   0.12510    0.05027   2.488   0.0134 *  
+log(Higheds)  -0.06857    0.07007  -0.979   0.3286    
+log(Seniors)   0.45357    0.10837   4.185 3.81e-05 ***
+df$Part2      -0.07334    0.03025  -2.424   0.0160 *  
+df$Part3      -0.10051    0.04533  -2.218   0.0274 *  
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 0.2248 on 280 degrees of freedom
+Multiple R-squared:  0.8018,    Adjusted R-squared:  0.7954 
+F-statistic: 125.8 on 9 and 280 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(model_eight) <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>()                                                                        </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">GVIF</th>
+<th style="text-align: right;">Df</th>
+<th style="text-align: right;">GVIF^(1/(2*Df))</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">log(Fuel)</td>
+<td style="text-align: right;">1.433664</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.197357</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">log(GRP)</td>
+<td style="text-align: right;">1.308231</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.143779</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">log(Income)</td>
+<td style="text-align: right;">2.045381</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.430168</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">log(Vehicles)</td>
+<td style="text-align: right;">10.127277</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.182338</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">log(Builton)</td>
+<td style="text-align: right;">11.138835</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.337489</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">log(Higheds)</td>
+<td style="text-align: right;">3.180307</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.783342</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">log(Seniors)</td>
+<td style="text-align: right;">2.819164</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.679037</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">df$Part</td>
+<td style="text-align: right;">1.758334</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1.151530</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Part 1: 140 obs</p>
+<p>Part 2: 96 obs</p>
+<p>Part 3: 54 obs</p>
+<pre><code>          Estimate Std. Error</code></pre>
+<p>(Intercept) -6.85697 1.45193 log(Fuel) 0.22538 0.01955 log(GRP) 0.08315 0.04133 log(Income) 0.25515 0.24166 log(Vehicles) 0.55362 0.13839 log(Builton) 0.12510 0.05027 log(Higheds) -0.06857 0.07007 - log(Seniors) 0.45357 0.10837 df<span class="math inline">\(Part2      -0.07334    0.03025
+df\)</span>Part3 -0.10051 0.04533</p>
 </section>
 </section>
 
