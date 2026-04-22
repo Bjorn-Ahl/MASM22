@@ -217,6 +217,23 @@ another_model$df.residual
 
 The value of the test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output. The p-value for the slope coefficient `log(Fuel)` (Pr(\>\|t\|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`.
 
+## 1(e) Explaining of variability
+
+In this section, we want to determine how much of the variability in `log(PM10)` between municaplities can be explained. For that we can look at the $R^2$, which describe the proportion of variability that is explained by the model. 
+
+```{r}
+
+# This compute R^2 for the model with log-transformation
+another_model_summary$r.squared
+
+# Adjusted R^2 for the model with log-transformation
+another_model_summary$adj.r.squared
+
+```
+
+The coefficient of determination $R^2$ is defined as the fraction of the variability of $\\mathbf{Y}$ that is explained by the regression model $\mathbf{\widehat{Y}}=\mathbf{X}\boldsymbol{\widehat{\beta}}$. For $R^2$, we got the value $0.3772511$, for adjusted $R^2$, we got te value $0.3750888$. For $R^2$, we would like as high as possible ($0 \leq R^2 \leq 1$). 
+
+
 ## Part 2(a) Log-transformations of numerical x-variables
 
 We plot log(PM10) against each of the other numerical variables (Fuel through GRP) to determine which of them should also be log-transformed.
@@ -305,7 +322,6 @@ abline(h = 5, col = "red")
 
 When fitting the model for log-$PM_{10}$ with all seven log-transformed numerical predictors, we obtain the $\beta$-estimates and their standard errors from the summary output. These are (before excluding any predictor):
 
-Below is a table of the VIF-values for each predictor before excluding a variable.
 
 | Predictor     | Estimate | Std. Error |
 |---------------|----------|------------|
@@ -317,6 +333,8 @@ Below is a table of the VIF-values for each predictor before excluding a variabl
 | log(Builton)  | 0.12031  | 0.05084    |
 | log(Higheds)  | -0.08775 | 0.06772    |
 | log(Seniors)  | 0.50315  | 0.10756    |
+
+Below is a table of the VIF-values for each predictor before excluding a variable.
 
 | Predictor     | VIF-values |
 |---------------|------------|
@@ -399,3 +417,11 @@ Part 3: 54 obs
 
 (Intercept) -6.85697 1.45193 log(Fuel) 0.22538 0.01955 log(GRP) 0.08315 0.04133 log(Income) 0.25515 0.24166 log(Vehicles) 0.55362 0.13839 log(Builton) 0.12510 0.05027 log(Higheds) -0.06857 0.07007 - log(Seniors) 0.45357 0.10837 df$Part2      -0.07334    0.03025
 df$Part3 -0.10051 0.04533
+
+```{r}
+
+
+
+```
+
+
