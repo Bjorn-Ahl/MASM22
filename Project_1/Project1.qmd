@@ -30,7 +30,7 @@ df <- as.data.frame(read_excel(xlsx_path))
 
 ## 1(a) Choice of transformations
 
-We compare residual plots for three candidate models to motivate the log of the response and to decide between `x = Fuel` and `x = log(Fuel)`.
+We compare residual plots for three candidate models to motivate the log of the response and to decide between x = Fuel and x = log(Fuel).
 
 ```{r}
 #| label: fig-1a-resid
@@ -61,9 +61,9 @@ plot_resid(m_raw,    "PM10 ~ Fuel") +
 
 **Interpretation:**
 
-- **Linear relationship.** In this case we have `PM10 = x₀ + x₁·Fuel`. From the graph we observe a stronger tendency toward the left, meaning observations cluster at lower fuel values while the spread of PM10 widens with Fuel. This suggests a purely linear model is not sufficient.
-- **Logarithmic response.** `ln(PM10) = x₀ + x₁·Fuel` is equivalent to `PM10 = a·b^Fuel`. The residual plot is less skewed, but equal additive changes in Fuel are treated the same across the scale, which is unrealistic for municipalities of different sizes.
-- **Log-log relationship.** `ln(PM10) = x₀ + x₁·ln(Fuel)` implies `PM10 = a·Fuel^{x₁}`. A relative change in Fuel implies a relative change in PM10, and the residuals are more evenly spread. This makes the log-log transformation the most plausible choice.
+- **Linear relationship.** In this case we have PM10 = x₀ + x₁·Fuel. From the graph we observe a stronger tendency toward the left, meaning observations cluster at lower fuel values while the spread of PM10 widens with Fuel. This suggests a purely linear model is not sufficient.
+- **Logarithmic response.** ln(PM10) = x₀ + x₁·Fuel is equivalent to PM10 = a·b\^Fuel. The residual plot is less skewed, but equal additive changes in Fuel are treated the same across the scale, which is unrealistic for municipalities of different sizes.
+- **Log-log relationship.** ln(PM10) = x₀ + x₁·ln(Fuel) implies PM10 = a·Fuel\^{x₁}. A relative change in Fuel implies a relative change in PM10, and the residuals are more evenly spread. This makes the log-log transformation the most plausible choice.
 
 ```{r}
 #| label: fig-1a-qq
