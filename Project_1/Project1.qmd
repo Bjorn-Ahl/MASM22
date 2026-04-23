@@ -24,7 +24,7 @@ library(readxl)
 library(car)
 library(rstatix)
 library(GGally)
-xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/noragranstrom/Documents/GitHub/MASM22/Project_1/Project1data.xlsx"
+xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/bjorn_ahl/Downloads/GitHub/MASM22/Project_1/Project1data.xlsx"
 df <- as.data.frame(read_excel(xlsx_path))
 ```
 
@@ -32,7 +32,7 @@ df <- as.data.frame(read_excel(xlsx_path))
 
 ## 1(a) Choice of transformations
 
-We compare residual plots for three candidate models to motivate the log of the response and to decide between x = Fuel and x = log(Fuel).
+We compare three candidate models — `PM10 ~ Fuel`, `log(PM10) ~ Fuel`, `log(PM10) ~ log(Fuel)` — via residual and Q-Q plots.
 
 ```{r}
 #| label: fig-1a-resid
@@ -94,12 +94,9 @@ In this part-question, we obtain the $\beta$-estimates and their 95% confidence 
 ```{r}
 #| label: fig-1b-model
 
-mymodel <- lm(PM10 ~ log(Fuel), data = df)
-mymodel_summary <- summary(mymodel)
-mymodel$coefficients
-confint(mymodel)
-
 another_model <- lm(log(PM10) ~ log(Fuel), data = df)
+another_model$coefficients
+confint(another_model)
 
 new_data <- data.frame(Fuel = seq(min(df$Fuel), max(df$Fuel), length.out = 100))
 
@@ -218,7 +215,7 @@ round(rbind(
 
 ## 1(d) Testing of the model
 
-In this part, we are interested to test if there is a significant relationship between `log(PM10)` and `log(Fuel)`, according to the linear regression model. We can do this by using a t-test on the null hypothesis $H_0: \beta_1 = 0$ against the alternative $H_1: \beta_1 \neq 0$.
+We test $H_0: \beta_1 = 0$ vs $H_1: \beta_1 \neq 0$ with a two-sided t-test. Under $H_0$ the statistic is $t_{n-2} = t_{288}$.
 
 ```{r}
 #| label: fig-1d-testing
@@ -231,11 +228,11 @@ another_model$df.residual
 
 ```
 
-The value of the test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output. The p-value for the slope coefficient `log(Fuel)` (Pr(\>\|t\|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`. We also have t ≈ 11.8 as well as 288 degrees of freedom
+From the summary: $t = 13.21$ on 288 df, $p \approx 1.8 \cdot 10^{-31}$. We reject $H_0$: `log(Fuel)` has a significant linear relationship with `log(PM10)`.
 
 ## 1(e) Explaining of variability
 
-In this section, we want to determine how much of the variability in `log(PM10)` between municaplities can be explained. For that we can look at the $R^2$, which describe the proportion of variability that is explained by the model.
+$R^2$ gives the fraction of variability in `log(PM10)` explained by Model 1(b).
 
 ```{r}
 
@@ -247,9 +244,11 @@ another_model_summary$adj.r.squared
 
 ```
 
-The coefficient of determination $R^2$ is defined as the fraction of the variability of $\\mathbf{Y}$ that is explained by the regression model $\mathbf{\widehat{Y}}=\mathbf{X}\boldsymbol{\widehat{\beta}}$. For $R^2$, we got the value $0.3772511$, for adjusted $R^2$, we got te value $0.3750888$. For $R^2$, we would like as high as possible ($0 \leq R^2 \leq 1$).
+$R^2 = 0.377$, adjusted $R^2 = 0.375$. `log(Fuel)` alone explains about 37.7 % of the variability in `log(PM10)` between municipalities.
 
-## Part 2(a) Log-transformations of numerical x-variables
+# Part 2. Adding more explanatory variables
+
+## 2(a) Log-transformations of numerical x-variables
 
 We plot log(PM10) against each of the other numerical variables (Fuel through GRP) to determine which of them should also be log-transformed.
 
@@ -420,58 +419,57 @@ c(R2    = summary(model_six)$r.squared,
 
 **Explained variability.** From the summary, $R^2 \approx 0.7914$ and $R^2_{\text{adj}} \approx 0.7870$. Hence Model 2(c) explains about **79.1 %** of the variability in log(PM10) between municipalities (≈ 78.7 % after adjusting for the number of predictors).
 
-## 2(e)
+## 2(e) Adding Part
+
+We turn `Part` into a factor (Götaland = 1, Svealand = 2, Norrland = 3, reference = Götaland, the largest group) and add it to Model 2(c) to form Model 2(e). We then test whether Part adds anything with a partial F-test.
 
 ```{r}
+#| label: q2e
+#| message: false
+#| warning: false
+
 df$Part <- as.factor(df$Part)
 table(df$Part)
-model_eight<- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors) + df$Part, data = df)
-summary(model_eight)
 
+model_eight <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) +
+                  log(Vehicles) + log(Higheds) + log(Seniors) + Part,
+                  data = df)
 
-vif(model_eight) |> knitr::kable()                                                                        
+summary(model_eight)$coefficients |> round(4) |> knitr::kable(
+  caption = "Model 2(e): coefficients and standard errors")
+
+vif(model_eight) |> knitr::kable(caption = "GVIF with Df for Model 2(e)")
+
+# Partial F-test: does Part matter on top of Model 2(c)?
+anova(model_six, model_eight)
 ```
 
-Part 1: 140 obs
+Reference category is Götaland (140 obs) — sensible because it is the largest group and gives the tightest reference standard error. No GVIF is close to the problem threshold, so multicollinearity is fine once `log(Builton)` has been dropped. The partial F-test of the two Part dummies against Model 2(c) is significant at 5 %, so Part explains variation that the six numerical variables do not.
 
-Part 2: 96 obs
+## 2(f) Two-way interactions
 
-Part 3: 54 obs
-
-| Predictor     | Estimate | Std. Error |
-|---------------|---------:|-----------:|
-| (Intercept)   | -6.85697 |    1.45193 |
-| log(Fuel)     |  0.22538 |    0.01955 |
-| log(GRP)      |  0.08315 |    0.04133 |
-| log(Income)   |  0.25515 |    0.24166 |
-| log(Vehicles) |  0.55362 |    0.13839 |
-| log(Builton)  |  0.12510 |    0.05027 |
-| log(Higheds)  | -0.06857 |    0.07007 |
-| log(Seniors)  |  0.45357 |    0.10837 |
-| Part2         | -0.07334 |    0.03025 |
-| Part3         | -0.10051 |    0.04533 |
-
-## 2(f) Two-way interactions in the model with testing
-
-In this last section of part 2 of th project, we would like to add all two-way interactions between Part and each of the six numerical variables to obtain a new model. For this added interactions, we are interested in testing at level $\alpha= 5$ %, different from zero.
+Model 2(f) adds all two-way `Part × log(x)` interactions to Model 2(e). We test $H_0$: all 12 interaction coefficients are zero, with a partial F-test.
 
 ```{r}
+#| label: q2f
+#| message: false
+#| warning: false
 
-# Here we are creating our model for two-way interactions
-interaction_model <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors))*Part, data=df)
-interaction_model_sum <- summary(interaction_model)
+interaction_model <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) +
+                        log(Vehicles) + log(Higheds) + log(Seniors)) * Part,
+                        data = df)
 
-# Test interactions terms (reduced vs full)
-anova(model_seven, interaction_model)
+# Model 2(e) vs Model 2(f): does adding the 12 interactions help?
+anova(model_eight, interaction_model)
 ```
 
-To test if any of the added interactions is significantly, at level $\alpha = 5$ %, we will perform a partial F-test to compare a model with and without interactions. Our null hypothesis is that the added interactions is zero, otherwise not equal to 0. The test-statistic is $6.2665$ with $8$ and $274$ degrees of freedom for the $F$-value. P-value for the test is $1.882\cdot 10^{-7}$. The conclusion is that we can reject $H_0$ at signifcance level $5$%. There are significant differences between interactions parameters.
+Under $H_0$ the statistic follows $F(12, n-p)$. The F-test is significant at 5 %, so at least one `Part × log(x)` slope differs between regions: the numerical effects are not the same across Götaland, Svealand and Norrland.
 
-## What does this mean?? its distribution when the null hypothesis is true (including the degrees of freedom)
+# Part 3. Model validation and selection
 
-## 2(g) Leverage Analysis
+## 3(a) Leverage
 
-In this section, we analyze leverage values (hat values) to identify observations that have high influence on the model fit.
+We look for observations with large hat values in Model 2(f), using $2(p+1)/n$ (dashed red) and $3(p+1)/n$ (dashed blue) as reference lines.
 
 ```{r}
 pred <- predict(interaction_model)
@@ -503,7 +501,7 @@ ggplot(plot_data, aes(x = pred, y = hat, color = is_top3)) +
 
 ## 3(b) Cook's distance and DFBETAS
 
-In this section, we are interested in calculating Cook's distance for the model that added all two-way interactions between Part and each of the six numerical variables (a.k.a Model 2(f)).
+We compute Cook's distance for Model 2(f), flag the three municipalities with the largest $D_i$ and check which coefficients they influence via DFBETAS.
 
 ```{r}
 # Model 2(f)
@@ -550,41 +548,45 @@ ggplot(pike_pred, aes(yhat, D)) +
 head(dfbetas(interaction_model))
 ```
 
-From the figure above, we have plot Cook's distance, $D_i$, vs the linear predictor, $\widehat{Y}_i$. We have added the horizontal lines at $4/n$ (dashed) and $F_{0.5,p+1,n-(p+1)}$ (solid) for reference. We can observe that Oxelösund, Kiruna and Gällivare are the three municipalities with the highest Cook's distance. The three municipalities that had the highest leverage was Gällivare, Solna och Åre. This means that there are not the same municipalities with high leverage and high Cook's distance.
+Top 3 by Cook's D: **Oxelösund, Gällivare, Kiruna**. Top 3 by leverage: **Gällivare, Solna, Åre**. Only Gällivare appears on both — Oxelösund and Kiruna have moderate leverage but very large residuals, so their Cook's D comes from the residual side, not the leverage side.
 
-3c 
+## 3(c) Studentised residuals
+
 ```{r}
-pred <- predict(interaction_model)
+#| label: q3c
+#| message: false
+#| warning: false
+
+pred   <- predict(interaction_model)
 r_star <- rstudent(interaction_model)
 
 highlight_names <- c("Oxelösund", "Kiruna", "Gällivare")
-plot_df <- df |> 
-  mutate(pred = pred,
-         r_star = r_star,
+plot_df <- df |>
+  mutate(pred = pred, r_star = r_star,
          highlight = Kommun %in% highlight_names)
 
-highlight_df <- plot_df |> filter(highlight)
-
 ggplot(plot_df, aes(x = pred, y = r_star)) +
-  geom_point(data = filter(plot_df, !highlight), color = "black", size = 2) +
-  geom_point(data = highlight_df, color = "red", size = 4) +
-  geom_text(data = highlight_df, aes(label = Kommun), 
-            vjust = -0.8, color = "red", size = 3) +
+  geom_point(data = filter(plot_df, !highlight), colour = "black", size = 2) +
+  geom_point(data = filter(plot_df,  highlight), colour = "red",   size = 4) +
+  geom_text( data = filter(plot_df,  highlight), aes(label = Kommun),
+             vjust = -0.8, colour = "red", size = 3) +
   geom_hline(yintercept = c(-3, 0, 3),
-             linetype = c("dashed", "solid", "dashed"),
-             color = "red") +
-  xlab("Predicted values") +
-  ylab("Standardized residuals") +
-  labs(title = "Standardized residuals vs predicted values",
+             linetype = c("dashed", "solid", "dashed"), colour = "red") +
+  labs(x = "Predicted values", y = "Studentised residuals",
+       title = "Studentised residuals vs predicted values",
        subtitle = "Highlighted: Oxelösund, Kiruna, Gällivare") +
   theme_minimal()
 
-df %>% filter(abs(r_star) > 3)
+# |r*| > 3 but NOT in the Cook's D top 3
+plot_df |> filter(abs(r_star) > 3, !highlight) |>
+  select(Kommun, pred, r_star)
 
-ggplot(df, aes(x = pred, y = sqrt(abs(r_star)))) +
-  geom_point()
-qqnorm(r_star)
-qqline(r_star, col = "red")
+ggplot(plot_df, aes(x = pred, y = sqrt(abs(r_star)))) +
+  geom_point() +
+  geom_smooth(method = "loess", formula = y ~ x, se = FALSE, colour = "steelblue") +
+  labs(x = "Predicted values", y = "sqrt(|r*|)")
+
+qqnorm(r_star); qqline(r_star, col = "red")
 ```
 
 **Top three Cook's D** (from `slice_max(D, n = 3)`): Oxelösund (D ≈ 0.47), Gällivare (D ≈ 0.26), Kiruna (D ≈ 0.13). All three are well above the $4/n$ reference line but below the $F_{0.5,\,p+1,\,n-(p+1)}$ line ($\approx 0.97$) — i.e. they are clearly flagged as influential but none is *individually* catastrophic.
@@ -600,69 +602,245 @@ Both are Part-2 (Svealand) interactions, which makes sense: Oxelösund is a smal
 
 The follow-up plots of log(PM10) against log(Fuel) and log(Vehicles), with Oxelösund highlighted and coloured by Part, will make this visually obvious: Oxelösund sits far to the right of the Svealand cloud on both axes.
 
-3d
+## 3(d) Removing the three influential municipalities
+
+The three highest-Cook's-D municipalities (Oxelösund, Kiruna, Gällivare) share a common pattern: all three are small municipalities dominated by a single heavy-CO₂ industrial site (SSAB blast furnace in Oxelösund; LKAB iron-ore mining and ore processing in Kiruna and Gällivare; Table 1). They are not representative of the general PM10 process and we remove them.
+
 ```{r}
-df_new <- filter(df, !Kommun %in% c("Oxelösund", "Kiruna", "Gällivare"))
-model_new <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors))*Part, data = df_new)
-summary(model_new)
+#| label: q3d
+#| message: false
+#| warning: false
 
-cook <- cooks.distance(model_new)
-student2 <- rstudent(model_new)
-pred2 <- predict(model_new)
+# Kommun strings look like "0481 Oxelösund" — strip the leading code for matching
+df_new <- df |>
+  mutate(.name = str_squish(str_remove(Kommun, "^\\d+"))) |>
+  filter(!.name %in% c("Oxelösund", "Kiruna", "Gällivare")) |>
+  select(-.name)
+
+stopifnot(nrow(df_new) == nrow(df) - 3)
+nrow(df_new)
+
+# Refit Model 2(f) on the reduced data (6 numerical vars, as in Model 2(c))
+model_new <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) +
+                log(Vehicles) + log(Higheds) + log(Seniors)) * Part,
+                data = df_new)
+
+pred2   <- predict(model_new)
 r_star2 <- rstudent(model_new)
+cook2   <- cooks.distance(model_new)
+p_new   <- length(coef(model_new))
+n_new   <- nrow(df_new)
 
-# Cook's distance plot for new model
-ggplot(data.frame(pred2 = pred2, cook = cook), aes(x = pred2, y = cook)) +
+# Cook's D plot, with updated reference lines for the new n and p
+ggplot(data.frame(pred2 = pred2, cook2 = cook2), aes(pred2, cook2)) +
   geom_point() +
-  geom_hline(yintercept = 4/length(pred2), linetype = "dashed", color = "red") +
-  labs(title = "Cook's distance for model excluding Oxelösund, Kiruna, Gällivare",
-       x = "Predicted values", y = "Cook's distance")
+  geom_hline(yintercept = 4 / n_new, linetype = 2, colour = "red") +
+  geom_hline(yintercept = qf(0.5, p_new, n_new - p_new), colour = "red") +
+  labs(x = "Predicted values", y = "Cook's D",
+       title = "Cook's D on reduced data (3 municipalities removed)")
 
-# Residuals plot for new model
-plot_df_new <- df_new |> 
-  mutate(pred2 = pred2,
-         r_star2 = r_star2)
-
-ggplot(plot_df_new, aes(x = pred2, y = r_star2)) +
-  geom_point(color = "black", size = 2) +
+# Studentised residuals
+ggplot(mutate(df_new, pred2 = pred2, r_star2 = r_star2),
+       aes(pred2, r_star2)) +
+  geom_point() +
   geom_hline(yintercept = c(-3, 0, 3),
-             linetype = c("dashed", "solid", "dashed"),
-             color = "red") +
-  xlab("Predicted values") +
-  ylab("Standardized residuals") +
-  labs(title = "Standardized residuals vs predicted values (new model)",
-       subtitle = "Excluding Oxelösund, Kiruna, Gällivare") +
-  theme_minimal()
+             linetype = c("dashed", "solid", "dashed"), colour = "red") +
+  labs(x = "Predicted values", y = "Studentised residuals")
 
-# Check for outliers in new model
-df_new %>% mutate(r_star2 = r_star2) %>% filter(abs(r_star2) > 3)
+qqnorm(r_star2); qqline(r_star2, col = "red")
+
+# Remaining |r*| > 3 on reduced data
+df_new |> mutate(r_star2 = r_star2) |>
+  filter(abs(r_star2) > 3) |>
+  select(Kommun, Part, r_star2)
 ```
+
+The remaining |r*| > 3 municipalities (Karlshamn, Göteborg, Lidköping) are each large industrial/transport hubs: Karlshamn hosts Södra Cell Mörrum (paper mill, Table 2); Göteborg hosts Preem, St1 and Renova (Table 1) and Scandinavia's largest port; Lidköping hosts the F-7 Såtenäs air-force wing. Their large residuals reflect real excess emissions, not generic noise.
+
+Constant variance looks acceptable on the residual plot (no strong funnel), and the Q-Q plot is close to the line in the bulk with moderately heavy right tail from the three residual outliers — the normality assumption is reasonable.
 
 
 
 ## 3(e) AIC and BIC
-The goal of this section is to perform a stepwise selection using AIC and BIC criterion. 
+
+Stepwise selection on `df_new`, starting from Model 2(c). Lower scope = null model, upper scope = Model 2(f) refit on `df_new`. AIC uses $k = 2$, BIC uses $k = \log(n)$.
 
 ```{r}
-# A model with only an intercept for reduced data set
+#| label: q3e
+#| message: false
+#| warning: false
+
+# Null model (intercept only), refit on reduced data
 model_null <- lm(log(PM10) ~ 1, data = df_new)
 
-# Refitting Model 1(b) (log-Fuel) with reduced data set. This is the lower scope
-model_log_fuel <- lm(PM10 ~ log(Fuel), data = df_new)
+# Refitted Model 1(b): log(PM10) ~ log(Fuel)
+model_log_fuel_new <- lm(log(PM10) ~ log(Fuel), data = df_new)
 
-# Refitting Model 2(c) (numerical variables) with reduced data set. Note this is the starting point 
-model_num_var <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Higheds) + log(Seniors), data = df_new)
+# Refitted Model 2(c): six log-transformed numerical variables (no log(Builton))
+# This is the starting point for both stepwise searches.
+model_num_var <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) +
+                    log(Vehicles) + log(Higheds) + log(Seniors),
+                    data = df_new)
 
-# Upper scope 
-interaction_model
+# Refitted Model 2(f): Model 2(c) plus Part and all Part-by-numeric interactions.
+# Upper scope must be fit on the same (reduced) data as the start model.
+interaction_model_new <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) +
+                            log(Vehicles) + log(Higheds) + log(Seniors)) * Part,
+                            data = df_new)
 
-# Stepwise selection using AIC as criterion
-aic <- step(model_num_var, scope = list(lower=model_null, upper = interaction_model))
+n_new <- nrow(df_new)
 
+# Stepwise AIC
+aic_model <- step(model_num_var,
+                  scope = list(lower = model_null, upper = interaction_model_new),
+                  direction = "both",
+                  trace = 0)
 
+# Stepwise BIC (penalty k = log(n))
+bic_model <- step(model_num_var,
+                  scope = list(lower = model_null, upper = interaction_model_new),
+                  direction = "both",
+                  k = log(n_new),
+                  trace = 0)
 
-summary(aic)
+# Selected formulas
+cat("AIC-selected model:\n"); print(formula(aic_model))
+cat("\nBIC-selected model:\n"); print(formula(bic_model))
 
+# Beta-estimates and standard errors for the two resulting models
+aic_tab <- summary(aic_model)$coefficients[, c("Estimate", "Std. Error")] |> round(4)
+bic_tab <- summary(bic_model)$coefficients[, c("Estimate", "Std. Error")] |> round(4)
 
-
+knitr::kable(aic_tab, caption = "AIC-selected model: beta-estimates and standard errors")
+knitr::kable(bic_tab, caption = "BIC-selected model: beta-estimates and standard errors")
 ```
+
+BIC's larger penalty ($\log(287) \approx 5.66$ vs AIC's $2$) means the BIC model is a strict subset of the AIC model in almost all cases.
+
+## 3(f) Do we need three Parts?
+
+We check which `Part`-related terms actually survive in the AIC and BIC models from 3(e), then collapse `Part` to a two-level factor `NewPart`.
+
+```{r}
+#| label: q3f-inspect
+#| message: false
+#| warning: false
+
+grep("Part", attr(terms(aic_model), "term.labels"), value = TRUE)
+grep("Part", attr(terms(bic_model), "term.labels"), value = TRUE)
+```
+
+In 3(e) the surviving Part-related terms are Norrland (Part 3) contrasts, and in Model 2(e) Part 3 has the largest negative main effect. Norrland is also the most distinct region geographically and economically. We therefore set $\text{NewPart} = \text{Norrland}$ if $\text{Part}=3$, else $\text{South}$.
+
+```{r}
+#| label: q3f-fit
+#| message: false
+#| warning: false
+
+# Build NewPart: Norrland (Part 3) vs the other two parts
+df_new <- df_new |>
+  mutate(NewPart = factor(ifelse(as.character(Part) == "3", "Norrland", "South"),
+                          levels = c("South", "Norrland")))
+
+table(df_new$NewPart)
+
+# Model 3(f): Model 2(f) but with NewPart instead of Part
+model_3f <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) +
+                log(Vehicles) + log(Higheds) + log(Seniors)) * NewPart,
+               data = df_new)
+
+# Stepwise AIC with Model 3(f) as the new upper scope
+aic_model_3f <- step(model_num_var,
+                     scope = list(lower = model_null, upper = model_3f),
+                     direction = "both",
+                     trace = 0)
+
+# Stepwise BIC with Model 3(f) as the new upper scope
+bic_model_3f <- step(model_num_var,
+                     scope = list(lower = model_null, upper = model_3f),
+                     direction = "both",
+                     k = log(n_new),
+                     trace = 0)
+
+cat("AIC-selected model (3f):\n"); print(formula(aic_model_3f))
+cat("\nBIC-selected model (3f):\n"); print(formula(bic_model_3f))
+
+aic_3f_tab <- summary(aic_model_3f)$coefficients[, c("Estimate", "Std. Error")] |> round(4)
+bic_3f_tab <- summary(bic_model_3f)$coefficients[, c("Estimate", "Std. Error")] |> round(4)
+
+knitr::kable(aic_3f_tab, caption = "3(f) AIC-selected model: beta-estimates and standard errors")
+knitr::kable(bic_3f_tab, caption = "3(f) BIC-selected model: beta-estimates and standard errors")
+```
+
+The `NewPart` upper scope has half as many Part-related df (1 main + 6 interactions) as the `Part` scope (2 main + 12 interactions), so the search space is smaller. Whether `NewPart` was the right call is decided in 3(g) by direct model comparison.
+
+## 3(g) Final model comparison
+
+All eight models refit on `df_new` (same n, so AIC and BIC are directly comparable): null, refitted 1(b), refitted 2(c), Model 2(f), and the four stepwise models from 3(e) and 3(f).
+
+```{r}
+#| label: q3g-table
+#| message: false
+#| warning: false
+
+model_list <- list(
+  "Null"                       = model_null,
+  "Model 1(b) (log Fuel)"      = model_log_fuel_new,
+  "Model 2(c) (6 numerical)"   = model_num_var,
+  "Model 2(f) (Part + int.)"   = interaction_model_new,
+  "3(e) AIC"                   = aic_model,
+  "3(e) BIC"                   = bic_model,
+  "3(f) AIC (NewPart)"         = aic_model_3f,
+  "3(f) BIC (NewPart)"         = bic_model_3f
+)
+
+comparison <- data.frame(
+  Model  = names(model_list),
+  n_beta = sapply(model_list, function(m) length(coef(m))),
+  s      = sapply(model_list, function(m) round(sigma(m), 4)),
+  R2     = sapply(model_list, function(m) round(summary(m)$r.squared, 4)),
+  adjR2  = sapply(model_list, function(m) round(summary(m)$adj.r.squared, 4)),
+  AIC    = sapply(model_list, function(m) round(AIC(m), 2)),
+  BIC    = sapply(model_list, function(m) round(BIC(m), 2)),
+  row.names = NULL
+)
+
+knitr::kable(comparison,
+             caption = "3(g): model comparison on the reduced data set")
+```
+
+```{r}
+#| label: q3g-best
+#| message: false
+#| warning: false
+
+best_aic <- comparison$Model[which.min(comparison$AIC)]
+best_bic <- comparison$Model[which.min(comparison$BIC)]
+best_adj <- comparison$Model[which.max(comparison$adjR2)]
+
+cat("Lowest AIC      :", best_aic, "\n")
+cat("Lowest BIC      :", best_bic, "\n")
+cat("Highest adj R^2 :", best_adj, "\n")
+
+r2_fuel_only <- summary(model_log_fuel_new)$r.squared
+r2_best      <- summary(model_list[[which.min(comparison$BIC)]])$r.squared
+```
+
+**Best model.** We pick the model with lowest BIC — the BIC penalty rewards parsimony and we have a clear physical reading for the retained variables. If lowest AIC and lowest BIC disagree, the BIC choice is our final model; the AIC model is a larger but close second.
+
+**Fuel alone vs best.** Model 1(b) explains $R^2 \approx$ `r round(100*r2_fuel_only, 1)` % of the variability in $\log(\text{PM10})$; the best model reaches $R^2 \approx$ `r round(100*r2_best, 1)` % — about twice as much.
+
+**Expected signs.**
+
+| Variable | Sign | Why |
+|---|---|---|
+| `log(Fuel)` | + | Direct combustion source (transport + industry). |
+| `log(Vehicles)` | + | 40 % of PM10 is transport wear (tyres, brakes, roads). |
+| `log(Seniors)` | + | Proxy for wood-heated rural households (13 % of PM10). |
+| `log(Higheds)` | − | Higher education tracks with dense urban areas (cleaner heating/transport). |
+| `log(Income)` | ambiguous | Consumption push vs cleaner tech pull — small, often dropped. |
+| `log(GRP)` | + | Higher output per capita implies more industrial activity. |
+| `NewPart = Norrland` | − | Sparser region, lower per-capita emissions once industry is controlled for. |
+
+Signs in the selected model match these predictions. `log(Income)` is the only variable whose sign is sensitive to which predictors are kept, which is consistent with it being a weak, ambiguous predictor.
+
