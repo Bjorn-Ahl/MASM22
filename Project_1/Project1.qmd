@@ -24,7 +24,7 @@ library(readxl)
 library(car)
 library(rstatix)
 library(GGally)
-xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/noragranstrom/Documents/GitHub/MASM22/Project_1/Project1data.xlsx"
+xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/LeonKrasniqi/Documents/GitHub/MASM22/Project_1/Project1data.xlsx"
 df <- as.data.frame(read_excel(xlsx_path))
 ```
 
@@ -458,7 +458,7 @@ In this last section of part 2 of th project, we would like to add all two-way i
 ```{r}
 
 # Here we are creating our model for two-way interactions
-interaction_model <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors))*Part, data=df)
+interaction_model <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Higheds) + log(Seniors))*Part, data=df)
 interaction_model_sum <- summary(interaction_model)
 
 # Test interactions terms (reduced vs full)
@@ -548,6 +548,8 @@ ggplot(pike_pred, aes(yhat, D)) +
 
 # Here we compute DFBETAS for the beta estimation(s)
 head(dfbetas(interaction_model))
+
+
 ```
 
 From the figure above, we have plot Cook's distance, $D_i$, vs the linear predictor, $\widehat{Y}_i$. We have added the horizontal lines at $4/n$ (dashed) and $F_{0.5,p+1,n-(p+1)}$ (solid) for reference. We can observe that Oxelösund, Kiruna and Gällivare are the three municipalities with the highest Cook's distance. The three municipalities that had the highest leverage was Gällivare, Solna och Åre. This means that there are not the same municipalities with high leverage and high Cook's distance.
