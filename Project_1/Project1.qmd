@@ -538,7 +538,7 @@ ggplot(pike_pred, aes(yhat, D)) +
   geom_point(size = 3) +
   geom_point(data = top3_cook, aes(yhat, D), color = "red", size = 3) +
   geom_text(data = top3_cook, aes(label = Kommun), 
-            vjust = -0.8, color = "red") +
+            vjust = -0.8, color = "red", size = 3) +
   geom_hline(yintercept = cook.limit.pike, color = "red") +
   geom_hline(yintercept = 4/n, linetype = 2, color = "red") +
   xlab("Fitted values") +
@@ -551,3 +551,31 @@ head(dfbetas(interaction_model))
 ```
 
 From the figure above, we have plot Cook's distance, $D_i$, vs the linear predictor, $\widehat{Y}_i$. We have added the horizontal lines at $4/n$ (dashed) and $F_{0.5,p+1,n-(p+1)}$ (solid) for reference. We can observe that Oxelösund, Kiruna and Gällivare are the three municipalities with the highest Cook's distance. The three municipalities that had the highest leverage was Gällivare, Solna och Åre. This means that there are not the same municipalities with high leverage and high Cook's distance.
+
+3c 
+```{r}
+pred <- predict(interaction_model)
+r_star <- rstudent(interaction_model)
+
+highlight_names <- c("Oxelösund", "Kiruna", "Gällivare")
+plot_df <- df |> 
+  mutate(pred = pred,
+         r_star = r_star,
+         highlight = Kommun %in% highlight_names)
+
+highlight_df <- plot_df |> filter(highlight)
+
+ggplot(plot_df, aes(x = pred, y = r_star)) +
+  geom_point(data = filter(plot_df, !highlight), color = "black", size = 2) +
+  geom_point(data = highlight_df, color = "red", size = 4) +
+  geom_text(data = highlight_df, aes(label = Kommun), 
+            vjust = -0.8, color = "red", size = 3) +
+  geom_hline(yintercept = c(-3, 0, 3),
+             linetype = c("dashed", "solid", "dashed"),
+             color = "red") +
+  xlab("Predicted values") +
+  ylab("Standardized residuals") +
+  labs(title = "Standardized residuals vs predicted values",
+       subtitle = "Highlighted: Oxelösund, Kiruna, Gällivare") +
+  theme_minimal()
+```
