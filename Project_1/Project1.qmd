@@ -78,8 +78,8 @@ plot_qq <- function(mod, title) {
     stat_qq_line(colour = "steelblue") +
     labs(title = title, x = "theoretical quantiles", y = "sample quantiles")
 }
-
-plot_qq(m_raw,    "PM10 ~ Fuel") +
+Ln_transformed_pm10 = log1p("PM10")
+plot_qq(m_raw,    Ln_transformed_pm10 ~ "Fuel") +
   plot_qq(m_logy,   "log(PM10) ~ Fuel") +
   plot_qq(m_loglog, "log(PM10) ~ log(Fuel)")
 ```
@@ -219,7 +219,7 @@ The value of the test-statistic for the slope coefficient `log(Fuel)` is given b
 
 ## 1(e) Explaining of variability
 
-In this section, we want to determine how much of the variability in `log(PM10)` between municaplities can be explained. For that we can look at the $R^2$, which describe the proportion of variability that is explained by the model. 
+In this section, we want to determine how much of the variability in `log(PM10)` between municaplities can be explained. For that we can look at the $R^2$, which describe the proportion of variability that is explained by the model.
 
 ```{r}
 
@@ -231,8 +231,7 @@ another_model_summary$adj.r.squared
 
 ```
 
-The coefficient of determination $R^2$ is defined as the fraction of the variability of $\\mathbf{Y}$ that is explained by the regression model $\mathbf{\widehat{Y}}=\mathbf{X}\boldsymbol{\widehat{\beta}}$. For $R^2$, we got the value $0.3772511$, for adjusted $R^2$, we got te value $0.3750888$. For $R^2$, we would like as high as possible ($0 \leq R^2 \leq 1$). 
-
+The coefficient of determination $R^2$ is defined as the fraction of the variability of $\\mathbf{Y}$ that is explained by the regression model $\mathbf{\widehat{Y}}=\mathbf{X}\boldsymbol{\widehat{\beta}}$. For $R^2$, we got the value $0.3772511$, for adjusted $R^2$, we got te value $0.3750888$. For $R^2$, we would like as high as possible ($0 \leq R^2 \leq 1$).
 
 ## Part 2(a) Log-transformations of numerical x-variables
 
@@ -322,7 +321,6 @@ abline(h = 5, col = "red")
 
 When fitting the model for log-$PM_{10}$ with all seven log-transformed numerical predictors, we obtain the $\beta$-estimates and their standard errors from the summary output. These are (before excluding any predictor):
 
-
 | Predictor     | Estimate | Std. Error |
 |---------------|----------|------------|
 | Intercept     | -6.41290 | 1.46047    |
@@ -411,16 +409,26 @@ Part 2: 96 obs
 
 Part 3: 54 obs
 
-```         
-          Estimate Std. Error
-```
 
-(Intercept) -6.85697 1.45193 log(Fuel) 0.22538 0.01955 log(GRP) 0.08315 0.04133 log(Income) 0.25515 0.24166 log(Vehicles) 0.55362 0.13839 log(Builton) 0.12510 0.05027 log(Higheds) -0.06857 0.07007 - log(Seniors) 0.45357 0.10837 df$Part2      -0.07334    0.03025
-df$Part3 -0.10051 0.04533
+
+| Predictor     | Estimate | Std. Error |
+|---------------|---------:|-----------:|
+| (Intercept)   | -6.85697 |    1.45193 |
+| log(Fuel)     |  0.22538 |    0.01955 |
+| log(GRP)      |  0.08315 |    0.04133 |
+| log(Income)   |  0.25515 |    0.24166 |
+| log(Vehicles) |  0.55362 |    0.13839 |
+| log(Builton)  |  0.12510 |    0.05027 |
+| log(Higheds)  | -0.06857 |    0.07007 |
+| log(Seniors)  |  0.45357 |    0.10837 |
+| Part2         | -0.07334 |    0.03025 |
+| Part3         | -0.10051 |    0.04533 |
+
+
 
 ## 2(f) Two-way interactions in the model with testing
 
-In this last section of part 2 of th project, we would like to add all two-way interactions between Part and each of the six numerical variables to obtain a new model. For this added interactions, we are interested in testing at level $\alpha= 5$ %, different from zero. 
+In this last section of part 2 of th project, we would like to add all two-way interactions between Part and each of the six numerical variables to obtain a new model. For this added interactions, we are interested in testing at level $\alpha= 5$ %, different from zero.
 
 ```{r}
 
@@ -432,6 +440,6 @@ interaction_model_sum <- summary(interaction_model)
 anova(model_seven, interaction_model)
 ```
 
-To test if any of the added interactions is significantly, at level $\alpha = 5$ %, we will perform a partial F-test to compare a model with and without interactions. Our null hypothesis is that the added interactions is zero, otherwise not equal to 0. The test-statistic is $6.2665$ with $8$ and $274$ degrees of freedom for the $F$-value. P-value for the test is $1.882\cdot 10^{-7}$. The conclusion is that we can reject $H_0$ at signifcance level $5$%. There are significant differences between interactions parameters. 
- 
+To test if any of the added interactions is significantly, at level $\alpha = 5$ %, we will perform a partial F-test to compare a model with and without interactions. Our null hypothesis is that the added interactions is zero, otherwise not equal to 0. The test-statistic is $6.2665$ with $8$ and $274$ degrees of freedom for the $F$-value. P-value for the test is $1.882\cdot 10^{-7}$. The conclusion is that we can reject $H_0$ at signifcance level $5$%. There are significant differences between interactions parameters.
+
 ## What does this mean?? its distribution when the null hypothesis is true (including the degrees of freedom)
