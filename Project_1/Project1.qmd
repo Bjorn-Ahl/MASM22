@@ -439,3 +439,59 @@ anova(model_seven, interaction_model)
 To test if any of the added interactions is significantly, at level $\alpha = 5$ %, we will perform a partial F-test to compare a model with and without interactions. Our null hypothesis is that the added interactions is zero, otherwise not equal to 0. The test-statistic is $6.2665$ with $8$ and $274$ degrees of freedom for the $F$-value. P-value for the test is $1.882\cdot 10^{-7}$. The conclusion is that we can reject $H_0$ at signifcance level $5$%. There are significant differences between interactions parameters.
 
 ## What does this mean?? its distribution when the null hypothesis is true (including the degrees of freedom)
+
+
+
+## 3(b) Cook's distance and DFBETAS
+
+In this section, we are interested in calculating Cook's distance for the model that added all two-way interactions between Part and each of the six numerical variables (a.k.a Model 2(f)).
+
+```{r}
+
+# Model 2(f)
+interaction_model
+
+# Summary of model 2(f)
+interaction_model_sum
+
+pike_pred <- mutate(
+  df, 
+  yhat = predict(interaction_model),
+  r = rstudent(interaction_model),
+  v = hatvalues(interaction_model),
+  D = cooks.distance(interaction_model)
+)
+
+# with 1/n and 2(p+1)/n horizontal lines:
+# p+1 = 
+
+pplus1 <- length(interaction_model$coefficients)
+n <- nobs(interaction_model)
+
+f1.pike <- pplus1
+f2.pike <- interaction_model$df.residual
+cook.limit.pike <- qf(0.5, f1.pike, f2.pike)
+names(pike_pred)
+
+# Find top 3 by Cook's D
+top3_cook <- pike_pred |> slice_max(D, n = 3)
+
+ggplot(pike_pred, aes(yhat, D)) + 
+  geom_point(size = 3) +
+  geom_point(data = top3_cook, aes(yhat, D), color = "red", size = 3) +
+  geom_text(data = top3_cook, aes(label = Kommun), 
+            vjust = -0.8, color = "red") +
+  geom_hline(yintercept = cook.limit.pike, color = "red") +
+  geom_hline(yintercept = 4/n, linetype = 2, color = "red") +
+  xlab("Fitted values") +
+  ylab("D_i") +
+  labs(title = "Pike: Cook's D",
+       caption = "4/n (dashed), F_0.5, p+1, n-(p+1) (solid)")
+
+# Here we compute DFBETAS for the beta estimation(s)
+
+head(dfbetas(interaction_model))
+
+```
+
+From the figure above, we have plot Cook's distance, $D_i$, vs the linear predictor, $\widehat{Y}_i$. We have added the horizontal lines at $4/n$ (dashed) and $F_{0.5,p+1,n-(p+1)}$ (solid) for reference. We can observe that Oxelösund, Kiruna and Gällivare are the three municipalities with the highest Cook's distance. The three municapalities that had the highest leverage was Gällivare, Solna och Åre. This means that there are not the same municipalities with high leverage and high Cook's distance.  
