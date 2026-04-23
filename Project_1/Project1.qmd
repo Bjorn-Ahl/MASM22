@@ -8,6 +8,8 @@ format:
     code-fold: false
     embed-resources: true
 editor: visual
+execute: 
+  echo: false
 ---
 
 ## Setup
@@ -78,10 +80,9 @@ plot_qq <- function(mod, title) {
     stat_qq_line(colour = "steelblue") +
     labs(title = title, x = "theoretical quantiles", y = "sample quantiles")
 }
-Ln_transformed_pm10 = log1p("PM10")
-plot_qq(m_raw,    Ln_transformed_pm10 ~ "Fuel") +
-  plot_qq(m_logy,   "log(PM10) ~ Fuel") +
-  plot_qq(m_loglog, "log(PM10) ~ log(Fuel)")
+plot_qq(m_raw,    "PM10 ~ Fuel") +
+    plot_qq(m_logy,   "log(PM10) ~ Fuel") +
+    plot_qq(m_loglog, "log(PM10) ~ log(Fuel)")
 ```
 
 From the QQ-plots we can clearly see that the log–log transformation gives the best fit, as its residuals follow the reference line most closely and are therefore the most normally distributed of the three.
@@ -122,7 +123,9 @@ p1 <- ggplot() +
   geom_ribbon(data = plot_df, aes(x = log(Fuel), ymin = ci_lower, ymax = ci_upper),
               alpha = 0.4, fill = "blue") +
   geom_line(data = plot_df, aes(x = log(Fuel), y = fit), color = "red") +
-  labs(x = "ln(Fuel)", y = "ln(PM10)", title = "ln(PM10) vs ln(Fuel)") +
+  labs(x = "ln(Fuel)", y = "ln(PM10)",
+       title = "Log scale: ln(PM10) ~ ln(Fuel)",
+       subtitle = "red = fit, dark band = 95% CI, light band = 95% PI") +
   theme_minimal()
 
 # Transforming back to original scale
@@ -142,12 +145,15 @@ p2 <- ggplot() +
   geom_ribbon(data = plot_df_e, aes(x = Fuel, ymin = ci_lower, ymax = ci_upper),
               alpha = 0.4, fill = "blue") +
   geom_line(data = plot_df_e, aes(x = Fuel, y = fit), color = "red") +
-  labs(x = "Fuel", y = "PM10", title = "PM10 vs Fuel") +
+  labs(x = "Fuel", y = "PM10",
+       title = "Original scale: PM10 vs Fuel (back-transformed)",
+       subtitle = "red = fit, dark band = 95% CI, light band = 95% PI") +
   theme_minimal()
 
-p1
-p2
+# Show both side by side so the log-scale and back-transformed versions are easy to compare
+p1 + p2 + plot_annotation(title = "Model 1(b): ln(PM10) = beta0 + beta1 * ln(Fuel)")
 
+# Back-transformed relationship: PM10 = exp(beta0) * Fuel^beta1 = a * Fuel^beta1
 intercept <- cbind(
   expbeta = exp(another_model$coefficients["(Intercept)"]),
   exp(confint(another_model, parm = "(Intercept)"))
@@ -159,7 +165,17 @@ slope <- cbind(
   exp(confint(another_model, parm = "log(Fuel)"))
 ) |>
   round(digits = 4)
+
+intercept   # a  = exp(beta0) with 95% CI
+slope       # exp(beta1) with 95% CI (the elasticity factor per unit change in log(Fuel))
 ```
+
+**Back-transformation.** Exponentiating both sides of $\ln(\text{PM10}) = \beta_0 + \beta_1\ln(\text{Fuel})$ gives
+$$\text{PM10} = e^{\beta_0}\cdot\text{Fuel}^{\beta_1} = a\cdot\text{Fuel}^{\beta_1}, \qquad a = e^{\beta_0}.$$
+
+The plug-in estimates are $\widehat{a} = e^{\widehat{\beta}_0}$ (with 95 % CI $[\,e^{L_0},\,e^{U_0}\,]$) and $\widehat{\beta}_1$ with its usual CI — these are printed as `intercept` and `slope` above. Note that the CI/PI ribbons in the PM10 vs Fuel plot are the exponentials of the ribbons in the ln–ln plot, so they are valid intervals on the original scale but are no longer symmetric about the fit.
+
+**Model-fit comments.** On the ln–ln scale (p1) the points scatter reasonably evenly around the line and the ribbons hug the cloud well — the assumption of constant variance looks plausible there. On the back-transformed plot (p2) the prediction band fans out dramatically at high Fuel, reflecting that constant variance on the log scale is multiplicative variance on the original scale; a handful of high-Fuel municipalities sit well outside the confidence band, suggesting leverage/outlier influence. In the residual plot from 1(a), the log–log residuals are the most evenly spread of the three candidates, but there is still some funneling and a few large negative residuals, signalling that `log(Fuel)` alone does not capture all the structure — more x-variables will be added in Part 2.
 
 ## 1(c) Effect of changing fuel consumption
 
