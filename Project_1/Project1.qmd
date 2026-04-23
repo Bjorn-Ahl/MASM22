@@ -602,8 +602,38 @@ The follow-up plots of log(PM10) against log(Fuel) and log(Vehicles), with Oxel�
 
 3d
 ```{r}
-df_new <- df %>%
-  filter(!Kommun %in% c("Oxelösund", "Kiruna", "Gällivare"))
+df_new <- filter(df, !Kommun %in% c("Oxelösund", "Kiruna", "Gällivare"))
 model_new <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Builton) + log(Higheds) + log(Seniors))*Part, data = df_new)
 summary(model_new)
+
+cook <- cooks.distance(model_new)
+student2 <- rstudent(model_new)
+pred2 <- predict(model_new)
+r_star2 <- rstudent(model_new)
+
+# Cook's distance plot for new model
+ggplot(data.frame(pred2 = pred2, cook = cook), aes(x = pred2, y = cook)) +
+  geom_point() +
+  geom_hline(yintercept = 4/length(pred2), linetype = "dashed", color = "red") +
+  labs(title = "Cook's distance for model excluding Oxelösund, Kiruna, Gällivare",
+       x = "Predicted values", y = "Cook's distance")
+
+# Residuals plot for new model
+plot_df_new <- df_new |> 
+  mutate(pred2 = pred2,
+         r_star2 = r_star2)
+
+ggplot(plot_df_new, aes(x = pred2, y = r_star2)) +
+  geom_point(color = "black", size = 2) +
+  geom_hline(yintercept = c(-3, 0, 3),
+             linetype = c("dashed", "solid", "dashed"),
+             color = "red") +
+  xlab("Predicted values") +
+  ylab("Standardized residuals") +
+  labs(title = "Standardized residuals vs predicted values (new model)",
+       subtitle = "Excluding Oxelösund, Kiruna, Gällivare") +
+  theme_minimal()
+
+# Check for outliers in new model
+df_new %>% mutate(r_star2 = r_star2) %>% filter(abs(r_star2) > 3)
 ```
