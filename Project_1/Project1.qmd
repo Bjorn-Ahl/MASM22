@@ -584,7 +584,7 @@ df %>% filter(abs(r_star) > 3)
 ggplot(df, aes(x = pred, y = sqrt(abs(r_star)))) +
   geom_point()
 qqnorm(r_star)
-qqline(df$r_star, col = "red")
+qqline(r_star, col = "red")
 ```
 
 **Top three Cook's D** (from `slice_max(D, n = 3)`): Oxelösund (D ≈ 0.47), Gällivare (D ≈ 0.26), Kiruna (D ≈ 0.13). All three are well above the $4/n$ reference line but below the $F_{0.5,\,p+1,\,n-(p+1)}$ line ($\approx 0.97$) — i.e. they are clearly flagged as influential but none is *individually* catastrophic.
@@ -637,3 +637,8 @@ ggplot(plot_df_new, aes(x = pred2, y = r_star2)) +
 # Check for outliers in new model
 df_new %>% mutate(r_star2 = r_star2) %>% filter(abs(r_star2) > 3)
 ```
+
+
+
+## 3(e) AIC and BIC
+The goal of this section is to perform a stepwise selection using AIC and BIC criterion. 
