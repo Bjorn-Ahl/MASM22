@@ -469,7 +469,7 @@ To test if any of the added interactions is significantly, at level $\alpha = 5$
 
 ## What does this mean?? its distribution when the null hypothesis is true (including the degrees of freedom)
 
-## 2(g) Leverage Analysis
+## 3(a) Leverage Analysis
 
 In this section, we analyze leverage values (hat values) to identify observations that have high influence on the model fit.
 
