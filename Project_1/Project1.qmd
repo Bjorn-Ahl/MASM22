@@ -642,3 +642,27 @@ df_new %>% mutate(r_star2 = r_star2) %>% filter(abs(r_star2) > 3)
 
 ## 3(e) AIC and BIC
 The goal of this section is to perform a stepwise selection using AIC and BIC criterion. 
+
+```{r}
+# A model with only an intercept for reduced data set
+model_null <- lm(log(PM10) ~ 1, data = df_new)
+
+# Refitting Model 1(b) (log-Fuel) with reduced data set. This is the lower scope
+model_log_fuel <- lm(PM10 ~ log(Fuel), data = df_new)
+
+# Refitting Model 2(c) (numerical variables) with reduced data set. Note this is the starting point 
+model_num_var <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Higheds) + log(Seniors), data = df_new)
+
+# Upper scope 
+interaction_model
+
+# Stepwise selection using AIC as criterion
+aic <- step(model_num_var, scope = list(lower=model_null, upper = interaction_model))
+
+
+
+summary(aic)
+
+
+
+```
