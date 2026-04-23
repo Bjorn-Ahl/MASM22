@@ -8,6 +8,8 @@ format:
     code-fold: false
     embed-resources: true
 editor: visual
+execute: 
+  echo: false
 ---
 
 ## Setup
@@ -78,10 +80,9 @@ plot_qq <- function(mod, title) {
     stat_qq_line(colour = "steelblue") +
     labs(title = title, x = "theoretical quantiles", y = "sample quantiles")
 }
-Ln_transformed_pm10 = log1p("PM10")
-plot_qq(m_raw,    Ln_transformed_pm10 ~ "Fuel") +
-  plot_qq(m_logy,   "log(PM10) ~ Fuel") +
-  plot_qq(m_loglog, "log(PM10) ~ log(Fuel)")
+plot_qq(m_raw,    "PM10 ~ Fuel") +
+    plot_qq(m_logy,   "log(PM10) ~ Fuel") +
+    plot_qq(m_loglog, "log(PM10) ~ log(Fuel)")
 ```
 
 From the QQ-plots we can clearly see that the log–log transformation gives the best fit, as its residuals follow the reference line most closely and are therefore the most normally distributed of the three.
@@ -122,7 +123,9 @@ p1 <- ggplot() +
   geom_ribbon(data = plot_df, aes(x = log(Fuel), ymin = ci_lower, ymax = ci_upper),
               alpha = 0.4, fill = "blue") +
   geom_line(data = plot_df, aes(x = log(Fuel), y = fit), color = "red") +
-  labs(x = "ln(Fuel)", y = "ln(PM10)", title = "ln(PM10) vs ln(Fuel)") +
+  labs(x = "ln(Fuel)", y = "ln(PM10)",
+       title = "Log scale: ln(PM10) ~ ln(Fuel)",
+       subtitle = "red = fit, dark band = 95% CI, light band = 95% PI") +
   theme_minimal()
 
 # Transforming back to original scale
@@ -142,12 +145,15 @@ p2 <- ggplot() +
   geom_ribbon(data = plot_df_e, aes(x = Fuel, ymin = ci_lower, ymax = ci_upper),
               alpha = 0.4, fill = "blue") +
   geom_line(data = plot_df_e, aes(x = Fuel, y = fit), color = "red") +
-  labs(x = "Fuel", y = "PM10", title = "PM10 vs Fuel") +
+  labs(x = "Fuel", y = "PM10",
+       title = "Original scale: PM10 vs Fuel (back-transformed)",
+       subtitle = "red = fit, dark band = 95% CI, light band = 95% PI") +
   theme_minimal()
 
-p1
-p2
+# Show both side by side so the log-scale and back-transformed versions are easy to compare
+p1 + p2 + plot_annotation(title = "Model 1(b): ln(PM10) = beta0 + beta1 * ln(Fuel)")
 
+# Back-transformed relationship: PM10 = exp(beta0) * Fuel^beta1 = a * Fuel^beta1
 intercept <- cbind(
   expbeta = exp(another_model$coefficients["(Intercept)"]),
   exp(confint(another_model, parm = "(Intercept)"))
@@ -159,7 +165,17 @@ slope <- cbind(
   exp(confint(another_model, parm = "log(Fuel)"))
 ) |>
   round(digits = 4)
+
+intercept   # a  = exp(beta0) with 95% CI
+slope       # exp(beta1) with 95% CI (the elasticity factor per unit change in log(Fuel))
 ```
+
+**Back-transformation.** Exponentiating both sides of $\ln(\text{PM10}) = \beta_0 + \beta_1\ln(\text{Fuel})$ gives
+$$\text{PM10} = e^{\beta_0}\cdot\text{Fuel}^{\beta_1} = a\cdot\text{Fuel}^{\beta_1}, \qquad a = e^{\beta_0}.$$
+
+The plug-in estimates are $\widehat{a} = e^{\widehat{\beta}_0}$ (with 95 % CI $[\,e^{L_0},\,e^{U_0}\,]$) and $\widehat{\beta}_1$ with its usual CI — these are printed as `intercept` and `slope` above. Note that the CI/PI ribbons in the PM10 vs Fuel plot are the exponentials of the ribbons in the ln–ln plot, so they are valid intervals on the original scale but are no longer symmetric about the fit.
+
+**Model-fit comments.** On the ln–ln scale (p1) the points scatter reasonably evenly around the line and the ribbons hug the cloud well — the assumption of constant variance looks plausible there. On the back-transformed plot (p2) the prediction band fans out dramatically at high Fuel, reflecting that constant variance on the log scale is multiplicative variance on the original scale; a handful of high-Fuel municipalities sit well outside the confidence band, suggesting leverage/outlier influence. In the residual plot from 1(a), the log–log residuals are the most evenly spread of the three candidates, but there is still some funneling and a few large negative residuals, signalling that `log(Fuel)` alone does not capture all the structure — more x-variables will be added in Part 2.
 
 ## 1(c) Effect of changing fuel consumption
 
@@ -215,7 +231,7 @@ another_model$df.residual
 
 ```
 
-The value of the test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output. The p-value for the slope coefficient `log(Fuel)` (Pr(\>\|t\|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`.
+The value of the test-statistic for the slope coefficient `log(Fuel)` is given by the t-value in the summary output. The p-value for the slope coefficient `log(Fuel)` (Pr(\>\|t\|)=1.828846e-31) is very small (less than 0.05), which indicates that we can reject the null hypothesis and conclude that there is a statistically significant relationship between `log(PM10)` and `log(Fuel)`. We also have t ≈ 11.8 as well as 288 degrees of freedom
 
 ## 1(e) Explaining of variability
 
@@ -260,7 +276,7 @@ df |> select(Kommun, Fuel:PM10) |>
 
 # 2(b) Pair-wise correlations
 
-We now want to investigate the pair-wise correlation of the numerical x variables. We want to see which ones have a strong correlation between each other, meaning an absolute value greater than or equal to 0.7. The results are visualized in the plot and summarized in a correlation matrix.
+We now want to investigate the pair-wise correlation of the numerical x variables. We want to see which ones have a strong correlation between each other, meaning an absolute value greater than or equal to 0.7. The results are visualized in the plot and summarized in a correlation matrix. The values can clearly be read off from the matrix below.
 
 ```{r}
 #| label: fig-2b
@@ -308,7 +324,7 @@ vif_values <- vif(model_seven)
 barplot(vif_values, main = "VIF Values for Predictors", xlab = "Predictors", ylab = "VIF", col = "steelblue")
 abline(h = 5, col = "red")
 
-model_six <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Higheds) + log(Seniors), data = df)
+model_six <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) + log(Vehicles) + log(Higheds) + log(Seniors), data = df) # This is without Builton
 summary(model_six)
 
 vif(model_six)
@@ -319,6 +335,7 @@ abline(h = 5, col = "red")
 
 ```
 
+We see that log(Builton) has the largest VIF (11.12) so we drop that one first.
 When fitting the model for log-$PM_{10}$ with all seven log-transformed numerical predictors, we obtain the $\beta$-estimates and their standard errors from the summary output. These are (before excluding any predictor):
 
 | Predictor     | Estimate | Std. Error |
@@ -346,7 +363,7 @@ Below is a table of the VIF-values for each predictor before excluding a variabl
 
 By observing the VIF-values, we can see that `log(Vehicles)` and `log(Builton)` have higher VIF-values, which indicates multicollinearity. This can make coefficient estimates unstable and harder to interpret. Therefore, it may be advisable to exclude one of these predictors.
 
-After excluding `log(Builton)` from the model, the updated estimates are:
+After excluding `log(Builton)` from the model, the estimates are:
 
 | Predictor     | Estimate | Std. Error |
 |---------------|----------|------------|
@@ -367,7 +384,7 @@ After excluding `log(Builton)` from the model, the updated estimates are:
 | log(Higheds)  | 2.700781   |
 | log(Seniors)  | 2.599338   |
 
-The second predictor that had a high VIF-value was log(Vehicles) with a VIF-value of 9.090458 with standard error 0.13271. After excluding log(Builton), the VIF-value for log(Vehicles) dropped to 2.619874 with a standard error of 0.07182, which is a significant improvement and indicates that we have reduced multicollinearity in our model. Remaining predictors have VIF-values that are below the threshold, which suggest that we can keep them in the model without worrying about multicollinearity.
+The second predictor that had a high VIF-value was log(Vehicles) with a VIF-value of 9.090458 with standard error 0.13271. After excluding log(Builton), the VIF-value for log(Vehicles) dropped to 2.619874 with a standard error of 0.07182, which is a significant improvement and indicates that we have reduced multicollinearity in our model. Remaining predictors have VIF-values that are below the threshold. This means that we can keep them in the model without worrying about multicollinearity.
 
 ## 2(d) Significance tests and explained variability
 
@@ -382,12 +399,24 @@ We work with Model 2(c) (model_six) which contains the six log-transformed x-var
 summary(model_six)$coefficients["log(Fuel)", ]
 model_six$df.residual
 
+# Partial F-test: Model 1(b) vs Model 2(c)
+anova(another_model, model_six)
+
 # R^2 and adj R^2 for Model 2(c)
 c(R2    = summary(model_six)$r.squared,
   adjR2 = summary(model_six)$adj.r.squared)
 ```
 
-We did a two-sided t-test on $\beta_{\log(\text{Fuel})}$ which gives $t = 0.2171/0.0197 \approx 11$ on $t_{283}$ with $p < 2\cdot 10^{-16}$, so we reject $H_0: \beta_{\log(\text{Fuel})} = 0$ and conclude that log(Fuel) still has a significant relationship with log(PM10) after adjusting for the other five variables.
+**t-test on log(Fuel) in Model 2(c).** We did a two-sided t-test on $\beta_{\log(\text{Fuel})}$ which gives $t = 0.2171/0.0197 \approx 11$ on $t_{283}$ with $p < 2\cdot 10^{-16}$, so we reject $H_0: \beta_{\log(\text{Fuel})} = 0$ and conclude that log(Fuel) still has a significant relationship with log(PM10) after adjusting for the other five variables.
+
+**Partial F-test: Model 1(b) vs Model 2(c).** Model 1(b) is nested in Model 2(c), so we can test whether adding the five extra variables (log(GRP), log(Income), log(Vehicles), log(Higheds), log(Seniors)) improves the fit with a partial F-test.
+
+- **Type of test:** partial F-test (ANOVA comparing two nested linear models).
+- **Null hypothesis:** $H_0: \beta_{\log(\text{GRP})} = \beta_{\log(\text{Income})} = \beta_{\log(\text{Vehicles})} = \beta_{\log(\text{Higheds})} = \beta_{\log(\text{Seniors})} = 0$, i.e. none of the five added variables contributes beyond log(Fuel). Alternative: at least one is non-zero.
+- **Test statistic:** $F \approx 112.38$ (from `anova(another_model, model_six)`).
+- **Distribution under $H_0$:** $F(5,\,283)$ — numerator df = 5 (added predictors), denominator df $= n - p = 290 - 7 = 283$.
+- **P-value:** $p \approx 4.3\cdot 10^{-65}$ (R prints it as `< 2.2e-16`).
+- **Conclusion:** at $\alpha = 0.05$ we clearly reject $H_0$, so at least one of the five added variables has a significant linear relationship with log(PM10) when log(Fuel) is already in the model.
 
 **Explained variability.** From the summary, $R^2 \approx 0.7914$ and $R^2_{\text{adj}} \approx 0.7870$. Hence Model 2(c) explains about **79.1 %** of the variability in log(PM10) between municipalities (≈ 78.7 % after adjusting for the number of predictors).
 
