@@ -24,7 +24,7 @@ library(readxl)
 library(car)
 library(rstatix)
 library(GGally)
-xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/bjorn_ahl/Downloads/GitHub/MASM22/Project_1/Project1data.xlsx"
+xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/leonkrasniqi/Documents/GitHub/MASM22/Project_1/Project1data.xlsx"
 df <- as.data.frame(read_excel(xlsx_path))
 ```
 
@@ -463,7 +463,7 @@ interaction_model <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) +
 anova(model_eight, interaction_model)
 ```
 
-Under $H_0$ the statistic follows $F(12, n-p)$. The F-test is significant at 5 %, so at least one `Part × log(x)` slope differs between regions: the numerical effects are not the same across Götaland, Svealand and Norrland.
+Under $H_0$ the statistic follows $F(12, n-p)$ with $F$-value $4.7233$ and where Res.df is $269$ and Df is $12$. The F-test is significant at 5 %, since p-value is $5.331\cdot 10^{-7}$. This means at least one `Part × log(x)` slope differs between regions: the numerical effects are not the same across Götaland, Svealand and Norrland.
 
 # Part 3. Model validation and selection
 
@@ -843,4 +843,18 @@ r2_best      <- summary(model_list[[which.min(comparison$BIC)]])$r.squared
 | `NewPart = Norrland` | − | Sparser region, lower per-capita emissions once industry is controlled for. |
 
 Signs in the selected model match these predictions. `log(Income)` is the only variable whose sign is sensitive to which predictors are kept, which is consistent with it being a weak, ambiguous predictor.
+
+
+# AI statement and author contributions
+
+## AI statement
+
+For this project, we have been using code examples provided by the teacher through Canvas. If we encountered problems with the code, we asked AI (e.g Claude and ChatGPT) to help us with the problem. For example of use have been to debug a error message and give code example to more difficult problem (e.g to highlight three municipalities that have highest Cook's distance). AI tools have also been used to writing this project, in order to get the spelling and grammar correctly. 
+
+
+## Overview of author contributions
+
+For this project, we have been working together at school with similiar workload. This means that each member of the project team has served multiple (same) roles. All have been programming, creating figures and tables to present data and results, discussion have been made about the project. All have also writing, revision and editing the project. Any derivation and analysis have been made by everyone. Björn Ahl was the person that coordinated the work and scheduling the meeting at school.  
+
+
 
