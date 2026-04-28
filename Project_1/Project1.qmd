@@ -17,14 +17,15 @@ editor: visual
 #| label: setup
 #| message: false
 #| warning: false
-
+#| 
 library(tidyverse)
 library(readxl)
 library(car)
 library(rstatix)
 library(GGally)
-xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/bjorn_ahl/Downloads/GitHub/MASM22/Project_1/Project1data.xlsx"
+xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/leonkrasniqi/Downloads/GitHub/MASM22/Project_1/Project1data.xlsx"
 df <- as.data.frame(read_excel(xlsx_path))
+
 ```
 
 # Part 1. Particle emissions and fuel consumption
@@ -63,7 +64,7 @@ plot_resid(m_raw,    "PM10 ~ Fuel") +
 **Interpretation:**
 
 - **Linear relationship.** In this case we have PM10 = x₀ + x₁·Fuel. From the graph we observe a stronger tendency toward the left, meaning observations cluster at lower fuel values while the spread of PM10 widens with Fuel. This suggests a purely linear model is not sufficient.
-- **Logarithmic response.** ln(PM10) = x₀ + x₁·Fuel is equivalent to PM10 = a·b\^Fuel. The residual plot is less skewed, but equal additive changes in Fuel are treated the same across the scale, which is unrealistic for municipalities of different sizes.
+- **Logarithmic response.** ln(PM10) = x₀ + x₁·Fuel is equivalent to PM10 = $a\cdot b^{Fuel}$. The residual plot is less skewed, but equal additive changes in Fuel are treated the same across the scale, which is unrealistic for municipalities of different sizes.
 - **Log-log relationship.** ln(PM10) = x₀ + x₁·ln(Fuel) implies PM10 = a·Fuel\^x₁. A relative change in Fuel implies a relative change in PM10, and the residuals are more evenly spread. This makes the log-log transformation the most plausible choice.
 
 ```{r}
@@ -168,7 +169,7 @@ slope       # exp(beta1) with 95% CI (the elasticity factor per unit change in l
 
 **Back-transformation.** Exponentiating both sides of $\ln(\text{PM10}) = \beta_0 + \beta_1\ln(\text{Fuel})$ gives $$\text{PM10} = e^{\beta_0}\cdot\text{Fuel}^{\beta_1} = a\cdot\text{Fuel}^{\beta_1}, \qquad a = e^{\beta_0}.$$
 
-The plug-in estimates are $\widehat{a} = e^{\widehat{\beta}_0}$ (with 95 % CI $[\,e^{L_0},\,e^{U_0}\,]$) and $\widehat{\beta}_1$ with its usual CI — these are printed as `intercept` and `slope` above. Note that the CI/PI ribbons in the PM10 vs Fuel plot are the exponentials of the ribbons in the ln–ln plot, so they are valid intervals on the original scale but are no longer symmetric about the fit.
+The plug-in estimates are $\widehat{a} = e^{\widehat{\beta}_0}$ (with 95 % CI $[\,e^{L_0},\,e^{U_0}\,]$) and $\widehat{\beta}_1$ with its usual CI — these are printed as `intercept` and `slope` above. Note that the CI/PI ribbons in the PM10 vs Fuel plot are the exponentials of the ribbons in the ln–ln plot, so they are valid intervals on the original scale but are no longer symmetric about the fit. 
 
 ## 1(c) Effect of changing fuel consumption
 
@@ -207,7 +208,7 @@ round(rbind(
   "Fuel reduction (%) to halve PM10" = reduction
 ), 2)
 ```
-So this implies that if we want our yearly fuel consumption decreases by 10% this would lead to a emission rate decreasing by -4.46% per year. \\
+So this implies that if we want our yearly fuel consumption decreases by 10% this would lead to a emission rate decreasing by -4.46% per year. 
 Similarly the muncipality would have to decreas the fuel consumption by 80% to halve the emission. 
 
 ## 1(d) Testing of the model
@@ -241,7 +242,7 @@ another_model_summary$adj.r.squared
 
 ```
 
-$R^2 = 0.377$, adjusted $R^2 = 0.375$. `log(Fuel)` alone explains about 37.7 % of the variability in `log(PM10)` between municipalities.
+$R^2 = 0.377$, adjusted $R^2 = 0.375$. `log(Fuel)` alone explains about 37.7 % of the variability in `log(PM10)` between municipalities. Adjusted $R^2$ is a modified version of $R^2$, where we penalizing if the added variables may not be relevant for fitting the model. The adjusted $R^2$-value is slightly less than $R^2$, which mean the model is efficient. 
 
 # Part 2. Adding more explanatory variables
 
@@ -408,8 +409,7 @@ c(R2    = summary(model_six)$r.squared,
 
 We test the Null hypothesis: $H_0: \beta_{\log(\text{GRP})} = \beta_{\log(\text{Income})} = \beta_{\log(\text{Vehicles})} = \beta_{\log(\text{Higheds})} = \beta_{\log(\text{Seniors})} = 0$. Inuitively this means that none of the five added variables contributes to the original model. $\implies$ Alternative: at least one is non-zero.
 From this we obtain the test statistic: $F \approx 112.38$.
-For the distribution when $H_0$ is true, we get that $H_0$: $F(5,\,283)$ $\iff$ numerator df = 5 (added predictors), denominator df $= n - p = 290 - 7 = 283$. We then get the P-value of $p \approx 2.2\cdot 10^{-16}$. We presume that this is a upper bound since we have floating point multiplication.
-\\
+For the distribution when $H_0$ is true, we get that $H_0$: $F(5,\,283)$ $\iff$ numerator df = 5 (added predictors), denominator df $= n - p = 290 - 7 = 283$. We then get the P-value of $p \approx 2.2\cdot 10^{-16}$. We presume that this is a upper bound since we have floating point multiplication. 
 
 **Conclusion:** at $\alpha = 0.05$ we clearly reject $H_0$, so at least one of the five added variables has a significant linear relationship with log(PM10) when log(Fuel) is already in the model.
 
@@ -475,9 +475,9 @@ From the results shown in the table we can see that part 1 (Götaland) is the re
 
 There doesn't seem to be any multicollinearity issues based on the VIF-values all being below our threshold of 5.
 
-Next we want to test wether there are any significant differences in LogPM10 between the three different parts of Sweden. In order to do this we use a partial F-test where the null hypothesis is that the effect is equal to zero for all parts of sweden and the alternative hypothesis is that at least one part has a non-zero effect.
+Next we want to test wether there are any significant differences in Log{PM10} between the three different parts of Sweden. In order to do this we use a partial F-test where the null hypothesis is that the effect is equal to zero for all parts of Sweden and the alternative hypothesis is that at least one part has a non-zero effect.
 
-This test gives us the F-value 4.1504 with df1 = 2 and df2 = 281. The obtained p-value is 0.01673 which is strictly less than 0.05 which indicates that we can reject the null hypothesis with a significance of 0.05. We hence conclude that there are diffreneces between the three parts of Sweden.
+This test gives us the F-value 4.1504 with df1 = 2 and df2 = 281. The obtained p-value is 0.01673 which is strictly less than 0.05 which indicates that we can reject the null hypothesis with a significance of 0.05. We hence conclude that there are differences between the three parts of Sweden.
 
 ## 2(f) Two-way interactions
 
@@ -496,7 +496,7 @@ interaction_model <- lm(log(PM10) ~ (log(Fuel) + log(GRP) + log(Income) +
 anova(model_eight, interaction_model)
 ```
 
-Under $H_0$ the statistic follows $F(12, n-p)$ with $F$-value \$4.7233 \$ and where Res.df is 269 and Df is 12. The F-test is significant at 5 %, since p-value is $5.331\cdot 10^{-7}$. This means at least one Part × log(x) slope differs between regions: the numerical effects are not the same across Götaland, Svealand and Norrland.
+Under $H_0$ the statistic follows $F(12, n-p)$ with $F$-value $4.7233$ and where Res.df is 269 and Df is 12. The F-test is significant at 5 %, since p-value is $5.331\cdot 10^{-7}$. This means at least one Part × log(x) slope differs between regions: the numerical effects are not the same across Götaland, Svealand and Norrland.
 
 # Part 3. Model validation and selection
 
@@ -532,6 +532,8 @@ ggplot(plot_data, aes(x = pred, y = hat, color = is_top3)) +
   theme_minimal()
 ```
 We obtain that the top 3 by leverage are; Gällivare, Solna, Åre.
+
+
 ## 3(b) Cook's distance and DFBETAS
 
 We compute Cook's distance for Model 2(f), flag the three municipalities with the largest $D_i$ and check which coefficients they influence via DFBETAS.
@@ -858,7 +860,7 @@ r2_best      <- summary(model_list[[which.min(comparison$BIC)]])$r.squared
 
 Signs in the selected model match these predictions. These are all subective assesments and motivations and hence may be incorrect. We welcome alternative views in the feedback!
 Norrland is less populated in comparison with other regions, thus we expect a negative sign compared to the reference region.
-# AI statement and author contributions
+
 
 ## AI statement
 For this project, we have been using code examples provided by the teacher through Canvas. If we encountered problems with the code, we asked AI (e.g ChatGPT) to help us with the problem. For example of use have been to debug a error message and give code example to more difficult problem (e.g to highlight three municipalities that have highest Cook's distance). AI tools have also been used to writing this project, in order to make more succinct, concise statements as well as help with grammar.
