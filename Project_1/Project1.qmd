@@ -169,7 +169,7 @@ slope       # exp(beta1) with 95% CI (the elasticity factor per unit change in l
 
 **Back-transformation.** Exponentiating both sides of $\ln(\text{PM10}) = \beta_0 + \beta_1\ln(\text{Fuel})$ gives $$\text{PM10} = e^{\beta_0}\cdot\text{Fuel}^{\beta_1} = a\cdot\text{Fuel}^{\beta_1}, \qquad a = e^{\beta_0}.$$
 
-The plug-in estimates are $\widehat{a} = e^{\widehat{\beta}_0}$ (with 95 % CI $[\,e^{L_0},\,e^{U_0}\,]$) and $\widehat{\beta}_1$ with its usual CI — these are printed as `intercept` and `slope` above. Note that the CI/PI ribbons in the PM10 vs Fuel plot are the exponentials of the ribbons in the ln–ln plot, so they are valid intervals on the original scale but are no longer symmetric about the fit. 
+The plug-in estimates are $\widehat{a} = e^{\widehat{\beta}_0}$ (with 95 % CI $[\,e^{L_0},\,e^{U_0}\,]$) and $\widehat{\beta}_1$ with its usual CI — these are printed as `intercept` and `slope` above. Note that the CI/PI ribbons in the PM10 vs Fuel plot are the exponentials of the ribbons in the ln–ln plot, so they are valid intervals on the original scale but are no longer symmetric about the fit. Regarding any problems with model fitting, we need to look closely on residuals from figure 1. For residual plot of `log(PM10) ~ log(Fuel)`, we can see that it is relativly scatterad around the horizontal line. This indicates that we have fitted a model well. By looking at Q-Q plot for figure 2, we can see it follow the reference line well, which imply linearity assumptions hold. For residual plot of `PM10 ~ Fuel`, we can clearly see outliers (data points that are far away from others). This will effect model fitting, since it will predict less accurate in order to fit the extreme value (see figure 3). It also violate linearity assumptions, which can been observe from Q-Q plot. 
 
 ## 1(c) Effect of changing fuel consumption
 
@@ -275,36 +275,52 @@ df |> select(Kommun, Fuel:PM10) |>
 
 We now want to investigate the pair-wise correlation of the numerical x variables. We want to see which ones have a strong correlation between each other, meaning an absolute value greater than or equal to 0.7. The results are visualized in the plot and summarized in a correlation matrix. The values and pairings can clearly be read off from the matrix below.
 
-```{r}
-#| label: fig-2b
-#| message: false
-#| warning: false
-
+``` {r}
 library(tidyverse)
 library(GGally)
+
+not_logged <- c("HighEd", "Seniors", "Vehicles")
 
 df2 <- df |> 
   select(Kommun, Fuel:GRP)
 
 df_long <- df2 |> 
   pivot_longer(cols = Fuel:GRP) |> 
-  mutate(value = log(value))
+  mutate(
+    value = if_else(
+      name %in% not_logged,
+      value,
+      log(value)
+    ),
+    name = if_else(
+      name %in% not_logged,
+      name,
+      paste0("log_", name)
+    )
+  )
 
 df_wide <- df_long |> 
   pivot_wider(
     id_cols = Kommun,
     names_from = name,
-    values_from = value,
-    names_prefix = "log_"
-  )
-
-df_wide <- df_wide |> select(-Kommun)
+    values_from = value
+  ) |> 
+  select(-Kommun)
 
 ggpairs(df_wide)
 
-cor_matrix <- cor(df_wide)
+cor_matrix <- cor(df_wide, use = "complete.obs")
 ```
 
+Below us, we will present pairs that exceed the $0.7$ threshold. Note that we are taking $|\rho| \geq 0$, since the figure (above) contain negative value. 
+
+| Variable 1     | Variable 2 | $\rho$ |
+|---------------|----------|------------|
+| log(Builton)     | Vehicles  | 0.909    |
+| log(Builton)      | Seniors  | 0.766    |
+| log(Builton)   | log(Higheds)  | 0.700    |
+
+The variables that are presented in the table above us have high collinearity. They are strongly related, which mean they are providing similiar information (redudant information). It will effect the precision of the estimated coefficients and will be very sensitive to small changes that may occur. If we look closely on variable name and the description, it seems reasonable that they correlated. Builton is area covered in buldings, roads etc. This will correlated to seniors and higheds, since more building have more people living in the area with higher educations. 
 
 
 ## 2(c) $\beta$-estimates of numerical variables and computation of VIF-values.
