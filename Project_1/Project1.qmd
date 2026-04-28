@@ -208,8 +208,8 @@ round(rbind(
   "Fuel reduction (%) to halve PM10" = reduction
 ), 2)
 ```
-So this implies that if we want our yearly fuel consumption decreases by 10% this would lead to a emission rate decreasing by -4.46% per year. 
-Similarly the muncipality would have to decreas the fuel consumption by 80% to halve the emission. 
+So this implies that if we want our yearly fuel consumption decreases by 10% this would lead to a emission rate decreasing by -3.89 % per year. 
+Similarly the muncipality would have to decreas the fuel consumption by 80% to halve the emission. Regarding the confidence interval, we can see that since the CI does not include value $0$, the results is statistically significant. 
 
 ## 1(d) Testing of the model
 
@@ -303,8 +303,9 @@ df_wide <- df_wide |> select(-Kommun)
 ggpairs(df_wide)
 
 cor_matrix <- cor(df_wide)
-
 ```
+
+
 
 ## 2(c) $\beta$-estimates of numerical variables and computation of VIF-values.
 
@@ -612,10 +613,14 @@ plot_df |> filter(abs(r_star) > 3, !highlight) |>
 
 ggplot(plot_df, aes(x = pred, y = sqrt(abs(r_star)))) +
   geom_point() +
+  geom_hline(yintercept = sqrt(3),
+             linetype = "dashed",
+             colour = "red") +
   geom_smooth(method = "loess", formula = y ~ x, se = FALSE, colour = "steelblue") +
   labs(x = "Predicted values", y = "sqrt(|r*|)")
 
-qqnorm(r_star); qqline(r_star, col = "red")
+qqnorm(r_star) 
+qqline(r_star, col = "red")
 ```
 
 - **log(Fuel):Part2**, DFBETAS $\approx +1.49$
