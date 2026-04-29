@@ -939,6 +939,8 @@ r2_best      <- summary(model_list[[which.min(comparison$BIC)]])$r.squared
 
 **Best model.** We pick the model with lowest BIC. The BIC penalty makes it reward stinginess and we have a clear physical reading for the retained variables. If lowest AIC and lowest BIC disagree, the BIC choice is our final model. The AIC model is a larger but close second.
 
+**3(e) vs 3(f).** Even though 3(e) has more parameters, it still wins on AIC/BIC. The simpler model gives the better result here.
+
 
 **Expected signs.**
 
