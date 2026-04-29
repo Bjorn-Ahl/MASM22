@@ -1,0 +1,42 @@
+---
+title: "Project 2"
+author: "Björn Ahl, Leon Krasniqi, Nora Granström"
+date: today
+format:
+  html:
+    toc: true
+    code-fold: false
+    embed-resources: true
+editor: visual
+execute: 
+  echo: false
+---
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(car)
+library(rstatix)
+library(GGally)
+```
+
+```{r}
+xlsx_path <- if (file.exists("Project1data.xlsx")) "Project1data.xlsx" else "/Users/bjorn_ahl/Downloads/GitHub/MASM22/Project_1/Project1data.xlsx"
+df <- as.data.frame(read_excel(xlsx_path))
+```
+
+## 1(a)
+
+```{r}
+cutoff <- quantile(df$PM10, probs = 2/3)
+
+df <- df |>
+  mutate(
+    pm10_high = as.numeric(PM10 >= cutoff),
+    pm10_cat  = factor(pm10_high, levels = c(0, 1), labels = c("Low", "High"))
+  )
+
+table(df$pm10_cat)
+```
