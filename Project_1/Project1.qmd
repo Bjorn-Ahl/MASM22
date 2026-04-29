@@ -170,16 +170,15 @@ slope       # exp(beta1) with 95% CI (the elasticity factor per unit change in l
 
 **Back-transformation.** Exponentiating both sides of $\ln(\text{PM10}) = \beta_0 + \beta_1\ln(\text{Fuel})$ gives $$\text{PM10} = e^{\beta_0}\cdot\text{Fuel}^{\beta_1} = a\cdot\text{Fuel}^{\beta_1}, \qquad a = e^{\beta_0}.$$
 
-The plug-in estimates are $\widehat{a} = e^{\widehat{\beta}_0}$ (with 95 % CI $[\,e^{L_0},\,e^{U_0}\,]$) and $\widehat{\beta}_1$ with its usual CI — these are printed as `intercept` and `slope` above. Note that the CI/PI ribbons in the PM10 vs Fuel plot are the exponentials of the ribbons in the ln–ln plot, so they are valid intervals on the original scale but are no longer symmetric about the fit. Regarding any problems with model fitting, we need to look closely on residuals from figure 1. For residual plot of `log(PM10) ~ log(Fuel)`, we can see that it is relativly scatterad around the horizontal line. This indicates that we have fitted a model well. By looking at Q-Q plot for figure 2, we can see it follow the reference line well, which imply linearity assumptions hold. For residual plot of `PM10 ~ Fuel`, we can clearly see outliers (data points that are far away from others). This will effect model fitting, since it will predict less accurate in order to fit the extreme value (see figure 3). It also violate linearity assumptions, which can been observe from Q-Q plot. 
+The plug-in estimates are $\widehat{a} = e^{\widehat{\beta}_0}$ (with 95 % CI $[\,e^{L_0},\,e^{U_0}\,]$) and $\widehat{\beta}_1$ with its usual CI — these are printed as `intercept` and `slope` above. Note that the CI/PI ribbons in the PM10 vs Fuel plot are the exponentials of the ribbons in the ln–ln plot, so they are valid intervals on the original scale but are no longer symmetric about the fit. Regarding any problems with model fitting, we need to look closely on residuals from figure 1. For residual plot of `log(PM10) ~ log(Fuel)`, we can see that it is relativly scatterad around the horizontal line. This indicates that we have fitted a model well. By looking at Q-Q plot for figure 2, we can see it follow the reference line well, which imply linearity assumptions hold. For residual plot of `PM10 ~ Fuel`, we can clearly see outliers (data points that are far away from others). This will effect model fitting, since it will predict less accurate in order to fit the extreme value (see figure 3). It also violate linearity assumptions, which can been observe from Q-Q plot.
 
 ## 1(c) Effect of changing fuel consumption
 
 **Log–log model:** $$\ln(\text{PM10}) = \beta_0 + \beta_1 \ln(\text{Fuel}) \;\Rightarrow\; \text{PM10 scales by } k^{\beta_1} \text{ if Fuel is multiplied by } k.$$
 
-**10 % decrease in Fuel ($k=0.9$):** $$r = 0.9^{\widehat{\beta}_1}.$$
+**10 % decrease in Fuel (**$k=0.9$): $$r = 0.9^{\widehat{\beta}_1}.$$
 
 If $\beta_1 \in [L,U]$, then $$r \in [0.9^{U},\,0.9^{L}].$$
-
 
 To reduce our PM10 to half of its original we get: $$k^{\beta_1} = 0.5 \;\Rightarrow\; k = 0.5^{1/\beta_1} \implies \qquad \text{reduction} = (1 - 0.5^{1/\beta_1})\cdot 100.$$
 
@@ -209,8 +208,8 @@ round(rbind(
   "Fuel reduction (%) to halve PM10" = reduction
 ), 2)
 ```
-So this implies that if we want our yearly fuel consumption decreases by 10% this would lead to a emission rate decreasing by -3.89 % per year. 
-Similarly the muncipality would have to decreas the fuel consumption by 80% to halve the emission. Regarding the confidence interval, we can see that since the CI does not include value $0$, the results is statistically significant. 
+
+So this implies that if we want our yearly fuel consumption decreases by 10% this would lead to a emission rate decreasing by -3.89 % per year. Similarly the muncipality would have to decreas the fuel consumption by 80% to halve the emission. Regarding the confidence interval, we can see that since the CI does not include value $0$, the results is statistically significant.
 
 ## 1(d) Testing of the model
 
@@ -243,7 +242,7 @@ another_model_summary$adj.r.squared
 
 ```
 
-$R^2 = 0.377$, adjusted $R^2 = 0.375$. `log(Fuel)` alone explains about 37.7 % of the variability in `log(PM10)` between municipalities. Adjusted $R^2$ is a modified version of $R^2$, where we penalizing if the added variables may not be relevant for fitting the model. The adjusted $R^2$-value is slightly less than $R^2$, which mean the model is efficient. 
+$R^2 = 0.377$, adjusted $R^2 = 0.375$. `log(Fuel)` alone explains about 37.7 % of the variability in `log(PM10)` between municipalities. Adjusted $R^2$ is a modified version of $R^2$, where we penalizing if the added variables may not be relevant for fitting the model. The adjusted $R^2$-value is slightly less than $R^2$, which mean the model is efficient.
 
 # Part 2. Adding more explanatory variables
 
@@ -276,7 +275,7 @@ df |> select(Kommun, Fuel:PM10) |>
 
 We now want to investigate the pair-wise correlation of the numerical x variables. We want to see which ones have a strong correlation between each other, meaning an absolute value greater than or equal to 0.7. The results are visualized in the plot and summarized in a correlation matrix. The values and pairings can clearly be read off from the matrix below.
 
-``` {r}
+```{r}
 library(tidyverse)
 library(GGally)
 
@@ -313,16 +312,15 @@ ggpairs(df_wide)
 cor_matrix <- cor(df_wide, use = "complete.obs")
 ```
 
-Below us, we will present pairs that exceed the $0.7$ threshold. Note that we are taking $|\rho| \geq 0$, since the figure (above) contain negative value. 
+Below us, we will present pairs that exceed the $0.7$ threshold. Note that we are taking $|\rho| \geq 0$, since the figure (above) contain negative value.
 
-| Variable 1     | Variable 2 | $\rho$ |
-|---------------|----------|------------|
-| log(Builton)     | Vehicles  | 0.909    |
-| log(Builton)      | Seniors  | 0.766    |
-| log(Builton)   | log(Higheds)  | 0.700    |
+| Variable 1   | Variable 2   | $\rho$ |
+|--------------|--------------|--------|
+| log(Builton) | Vehicles     | 0.909  |
+| log(Builton) | Seniors      | 0.766  |
+| log(Builton) | log(Higheds) | 0.700  |
 
-The variables that are presented in the table above us have high collinearity. They are strongly related, which mean they are providing similiar information (redudant information). It will effect the precision of the estimated coefficients and will be very sensitive to small changes that may occur. If we look closely on variable name and the description, it seems reasonable that they correlated. Builton is area covered in buldings, roads etc. This will correlated to seniors and higheds, since more building have more people living in the area with higher educations. 
-
+The variables that are presented in the table above us have high collinearity. They are strongly related, which mean they are providing similiar information (redudant information). It will effect the precision of the estimated coefficients and will be very sensitive to small changes that may occur. If we look closely on variable name and the description, it seems reasonable that they correlated. Builton is area covered in buldings, roads etc. This will correlated to seniors and higheds, since more building have more people living in the area with higher educations.
 
 ## 2(c) $\beta$-estimates of numerical variables and computation of VIF-values.
 
@@ -425,9 +423,7 @@ c(R2    = summary(model_six)$r.squared,
 
 **Partial F-test: Model 1(b) vs Model 2(c).** Model 1(b) is nested in Model 2(c), so we can test whether adding the five extra variables (log(GRP), log(Income), log(Vehicles), log(Higheds), log(Seniors)) improves the fit with a partial F-test.
 
-We test the Null hypothesis: $H_0: \beta_{\log(\text{GRP})} = \beta_{\log(\text{Income})} = \beta_{\log(\text{Vehicles})} = \beta_{\log(\text{Higheds})} = \beta_{\log(\text{Seniors})} = 0$. Inuitively this means that none of the five added variables contributes to the original model. $\implies$ Alternative: at least one is non-zero.
-From this we obtain the test statistic: $F \approx 112.38$.
-For the distribution when $H_0$ is true, we get that $H_0$: $F(5,\,283)$ $\iff$ numerator df = 5 (added predictors), denominator df $= n - p = 290 - 7 = 283$. We then get the P-value of $p \approx 2.2\cdot 10^{-16}$. We presume that this is a upper bound since we have floating point multiplication. 
+We test the Null hypothesis: $H_0: \beta_{\log(\text{GRP})} = \beta_{\log(\text{Income})} = \beta_{\log(\text{Vehicles})} = \beta_{\log(\text{Higheds})} = \beta_{\log(\text{Seniors})} = 0$. Inuitively this means that none of the five added variables contributes to the original model. $\implies$ Alternative: at least one is non-zero. From this we obtain the test statistic: $F \approx 112.38$. For the distribution when $H_0$ is true, we get that $H_0$: $F(5,\,283)$ $\iff$ numerator df = 5 (added predictors), denominator df $= n - p = 290 - 7 = 283$. We then get the P-value of $p \approx 2.2\cdot 10^{-16}$. We presume that this is a upper bound since we have floating point multiplication.
 
 **Conclusion:** at $\alpha = 0.05$ we clearly reject $H_0$, so at least one of the five added variables has a significant linear relationship with log(PM10) when log(Fuel) is already in the model.
 
@@ -456,8 +452,7 @@ model_eight <- lm(log(PM10) ~ log(Fuel) + log(GRP) + log(Income) +
 
 # Partial F-test: does Part matter on top of Model 2(c)?
 anova(model_six, model_eight)
-```                                                                    
-
+```
 
 ⁠ The number of observations for each part of Sweden is:
 
@@ -520,7 +515,7 @@ Under $H_0$ the statistic follows $F(12, n-p)$ with $F$-value $4.7233$ and where
 
 ## 3(a) Leverage
 
-We look for observations with large hat values in Model 2(f), using $2(p+1)/n$ (dashed red) and $3(p+1)/n$ (dashed blue) as reference lines. We tried to give names to the red dots but eventually gave up after 10 hours </3
+We look for observations with large hat values in Model 2(f), using $2(p+1)/n$ (dashed red) and $3(p+1)/n$ (dashed blue) as reference lines. We tried to give names to the red dots but eventually gave up after 10 hours \</3
 
 ```{r}
 pred <- predict(interaction_model)
@@ -549,8 +544,8 @@ ggplot(plot_data, aes(x = pred, y = hat, color = is_top3)) +
        color = "Point type") +
   theme_minimal()
 ```
-We obtain that the top 3 by leverage are; Gällivare, Solna, Åre.
-The reason for Gällivare having such high leverage could possibly be that there are mines such as Aitik and Malmberget located there making the emissions very high. In the case of Solna and Åre however the reason could potentially be that they have very little activity that would contribute to these emissions, making the emission rates there very low.
+
+We obtain that the top 3 by leverage are; Gällivare, Solna, Åre. The reason for Gällivare having such high leverage could possibly be that there are mines such as Aitik and Malmberget located there making the emissions very high. In the case of Solna and Åre however the reason could potentially be that they have very little activity that would contribute to these emissions, making the emission rates there very low.
 
 ## 3(b) Cook's distance and DFBETAS
 
@@ -596,8 +591,7 @@ ggplot(pike_pred, aes(yhat, D)) +
 # head(dfbetas(interaction_model))
 ```
 
-We comment out the "head(dfbetas(interaction_model))" for better formatting.
-Top 3 by Cook's D: **Oxelösund, Gällivare, Kiruna**. Top 3 by leverage: **Gällivare, Solna, Åre**. Comparing these we see that only Gällivare appears on both.
+We comment out the "head(dfbetas(interaction_model))" for better formatting. Top 3 by Cook's D: **Oxelösund, Gällivare, Kiruna**. Top 3 by leverage: **Gällivare, Solna, Åre**. Comparing these we see that only Gällivare appears on both.
 
 To see which $\beta$-estimates each influential municipality actually pulls, we look at its own row of DFBETAS. We then plot `log(PM10)` faceted by `Part`.
 
@@ -650,11 +644,12 @@ p_fuel / p_veh
 ```
 
 ### Why these municipalities matter.
+
 Oxelösund mostly affects the Svealand slopes for log(Fuel) and log(Vehicles), while Gällivare and Kiruna affect the Norrland slopes. In Svealand, Oxelösund has high log(PM10) for its small fuel and vehicle counts because of the SSAB blast furnace. Gällivare and Kiruna are above the others because of the LKAB mines. Since each Part has few observations one odd point can swing the slope a lot hence why DFBETAS picks up.
 
 ## 3(c) Studentised residuals
-See the plots below for context. 
-The points with $|r^*| > 3$ are Göteborg, Lidköping and Karlshamn. From the plot we see that Göteborg has a high log(PM10) compared to its predicted value, which is reasonable since it is a port with lots of boats coming in and out and that drives up the emissions. Oxelösund is the only municipality that shows up both as high Cook's distance and as $|r^*| > 3$, which implies that something is going on with it. Looking at its individual DFBETAS we get log(Fuel):Part2 $\approx +1.49$ and log(Vehicles):Part2 $\approx -1.30$. Both are Part-2 interactions which makes sense since Oxelösund is a small Svealand municipality hosting SSAB's blast furnace. This implies that its Fuel and Vehicle profile is high compared to other Part2 municipalities. In 3(d) we check the impact of removing these outliers. 
+
+See the plots below for context. The points with $|r^*| > 3$ are Göteborg, Lidköping and Karlshamn. From the plot we see that Göteborg has a high log(PM10) compared to its predicted value, which is reasonable since it is a port with lots of boats coming in and out and that drives up the emissions. Oxelösund is the only municipality that shows up both as high Cook's distance and as $|r^*| > 3$, which implies that something is going on with it. Looking at its individual DFBETAS we get log(Fuel):Part2 $\approx +1.49$ and log(Vehicles):Part2 $\approx -1.30$. Both are Part-2 interactions which makes sense since Oxelösund is a small Svealand municipality hosting SSAB's blast furnace. This implies that its Fuel and Vehicle profile is high compared to other Part2 municipalities. In 3(d) we check the impact of removing these outliers.
 
 ```{r}
 #| label: q3c
@@ -711,9 +706,8 @@ ggplot(plot_df_3c, aes(x = pred, y = sqrt(abs(r_star)))) +
 qqnorm(r_star) 
 qqline(r_star, col = "red")
 ```
-We see that the "Normal-Q-Q Plot" is not really normally distributed. Reasons being for this are most likely the high residual muncipalies such as Göteborg and Karlshamn interactions with the model as these are not normally distributed. We see a fairly evident right-skew in our model, hence we reject normality. 
 
-
+We see that the "Normal-Q-Q Plot" is not really normally distributed. Reasons being for this are most likely the high residual muncipalies such as Göteborg and Karlshamn interactions with the model as these are not normally distributed. We see a fairly evident right-skew in our model, hence we reject normality.
 
 ## 3(d) Removing the three influential municipalities
 
@@ -941,7 +935,6 @@ r2_best      <- summary(model_list[[which.min(comparison$BIC)]])$r.squared
 
 **3(e) vs 3(f).** Even though 3(e) has more parameters, it still wins on AIC/BIC. The simpler model gives the better result here.
 
-
 **Expected signs.**
 
 | Variable | Sign | Why |
@@ -951,12 +944,12 @@ r2_best      <- summary(model_list[[which.min(comparison$BIC)]])$r.squared
 | `log(Seniors)` | \We don't know | No clue why |
 | `NewPart = Norrland` | ambiguos (with interactions it becomes negative, else positive) | Sparser region, lower per-capita emissions once industry is controlled for. |
 
-Signs in the selected model match these predictions. These are all subective assesments and motivations and hence may be incorrect. We welcome alternative views in the feedback!
-Norrland is less populated in comparison with other regions, thus we expect a negative sign compared to the reference region.
-
+Signs in the selected model match these predictions. These are all subective assesments and motivations and hence may be incorrect. We welcome alternative views in the feedback! Norrland is less populated in comparison with other regions, thus we expect a negative sign compared to the reference region.
 
 ## AI statement
+
 For this project, we have been using code examples provided by the teacher through Canvas. If we encountered problems with the code, we asked AI (e.g ChatGPT) to help us with the problem. For example of use have been to debug a error message and give code example to more difficult problem (e.g to highlight three municipalities that have highest Cook's distance). AI tools have also been used to writing this project, in order to make more succinct, concise statements as well as help with grammar.
 
 ## Overview of author contributions
+
 For this project, we have been working together at school with similiar workload. This means that each member of the project team has served multiple (same) roles. All have been programming, creating figures and tables to present data and results. Everyone has contributed with writing codrevision and editing the project. Any derivation and analysis have been made by everyone. Björn Ahl was the person that coordinated the work and scheduling the meeting at school.
