@@ -157,7 +157,7 @@ ggplot(df, aes(x = Fuel, y = pm10_high)) +
   ylim(0,1)
 ```
 
-From this we see that as fuel increases we get that the probability of high emission increase as well (as defined in our low/high metric). In the beginning the curve rises rapidly and then plateuas. This is also the reason which motivates why we log-transform. The log transform sort of normalises the distribution and clustering in the beginning making it more linear. This is showcased in plot below.
+From this we see that as fuel increases we get that the probability of high emission increase as well (as defined in our low/high metric). In the beginning the curve rises rapidly and then plateaus. This is also the reason which motivates why we log-transform. The log transform sort of normalises the distribution and clustering in the beginning making it more linear. This is showcased in plot below.
 
 
 ```{r}
@@ -203,7 +203,7 @@ ggplot(df, aes(x = log(Fuel), y = pm10_high)) +
 ```
 
 \newline
-Here we also have a likelyhood ratio test. The reason for this is that the sample size is not incredibly large, generally only Wald tests are good if the sample size is large. Likeleyhood ratio test is better because it comprates the fit of the two models via the difference in deviance. 
+Here we also have a likelyhood ratio test. The reason for this is that the sample size is not incredibly large, generally only Wald tests are good if the sample size is large. Likelyhood ratio test is better because it compares the fit of the two models via the difference in deviance. 
 
 \newline 
 Our $H_0: \beta{log(Fuel)} = 0$ (Fuel has no effect on prob of high emissions).
@@ -217,7 +217,7 @@ Since the critical value is $\chi{^2}_{1}$ $\approx$ 3.84. Since 50.35 > 3.84 we
 \newline
 Just by the fact we have an exponential relationship. If log(Fuel) increases by 1 we get that Fuel increases by $e^1 - 1 = 1.72$ $\implies$ an increase of 172%. 
 \newline
-When the log-fuel increases by 1? The log-odds of high emissions is given by $\beta  + \beta \cdot ln(Fuel)$. (This jut follows from the fact that it models the log-odds as a linear function of the predictor.)
+When the log-fuel increases by 1? The log-odds of high emissions is given by $\beta_0  + \beta_1 \cdot ln(Fuel)$. (This just follows from the fact that it models the log-odds as a linear function of the predictor.)
 $$\log\left(\frac{p}{1-p}\right) = \beta_0 + \beta \cdot \log(\text{Fuel})$$  
 
 Hence we get that the change is if ln(fuel) increases by 1 we get the the odds are given by $e^{1.24} \approx 3.46$ (since $\beta = 1.24$  in our model (see table 1(d))), with 95% CI $(e^{0.858},\, e^{1.671}) \approx (2.36,\, 5.32)$.
@@ -250,11 +250,11 @@ tibble(
        caption = sprintf("blue: 1/n = %.4f   red: 2(p+1)/n = %.4f", 1/n, 2*pp/n))
 ```
 
-We see that a point further out has more advantage and can tip the fit more. But if the datapoints are too far out and the model is already saying $\hat p \approx 0$ or $\approx 1$ with pretty much full confidence then the points stop mattering. The two 0-points at $\log(\text{Fuel}) \approx 5.25$ land on the right bump because of where they sit on the x-axis and not because they happen to be 0.
+We see that a point further out has more advantage and can tip the fit more. But if the datapoints are too far out and the model is already saying $\hat p \approx 0$ or $\approx 1$ with pretty much full confidence then the points stop mattering. The two 0-points at $\log(\text{Fuel}) \approx 5.25$ land on the right valley because of where they sit on the x-axis and not because they happen to be 0.
 
 In general the flat tails mean the model is confident ($\hat p \approx 0$ or $1$), so the working weight $\hat p(1-\hat p) \to 0$ there and observations in those tails barely move the fit which is why leverage drops back toward zero at the extremes.
-
-For the reason why these valleys sit where they are is because the S-curve is steepest at the inflection ($\hat{p} =0.5$) but leverage also depends on the squared distance from the weighted mean. This yields the actual leverage. This is thus maximised when the data points are far from the weighted mean and not so far out that the model is certain.
+\newline
+For the reason why these valleys sit where they are is because the S-curve is steepest at the inflection ($\hat{p} =0.5$) but leverage also depends on the squared distance from the weighted mean. This yields the actual leverage. This is thus maximised when the data points are far from the weighted mean and not so far out that the model is certain. The right Valley is also larger because the data is more skewed to the right and hence has a larger potential for the squared term.
 # 1(f)
 
 ```{r}
