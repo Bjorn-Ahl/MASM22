@@ -133,7 +133,17 @@ tbl_pred <- data.frame(
 knitr::kable(tbl_pred, digits = 4,
              col.names = c("Part", "Log-odds", "SE", "CI low", "CI high",
                            "Probability", "Prob CI low", "Prob CI high"),
-             caption = "Table 1(c): Log-odds and probabilities per region from Model.1(c)")
+             caption = "Table 1(c): Probabilities per region from model_1c")
 ``` 
 Norrland has a much higher probability of high emissions than Götaland and Svealand which are  similar to each other. Norrland also has a wider CI due to fewer observations, 54 vs 96 and 140. The overlap between Götaland and Svealand in the CI's  may actually imply that there is no real difference between them (probability-wise).
+
+\newline
+\newline
+We should use a Likelyhood ratio test. 
+Let $H_0:= \beta{_0} = \beta{_1}= \beta{_2}$ . I.e  that all three regions have the same probability of high emissions
+```{r}
+model_null <- glm(pm10_high ~ 1, data = df, family = binomial)
+anova(model_null, model_1c, test = "LRT")
+```
+The value of the test statistic is the drop in deviance $= 29.4$. $H_0$ follows a $\chi^2(2)$ distribution (with 2 df). . The p-value is $4 \times 10^{-7}$, so we reject $H_0$. There is statistically strong evidence that the probability of high emissions differs between Götaland, Svealand and Norrland.
 
