@@ -254,7 +254,7 @@ We see that a point further out has more advantage and can tip the fit more. But
 
 In general the flat tails mean the model is confident ($\hat p \approx 0$ or $1$), so the working weight $\hat p(1-\hat p) \to 0$ there and observations in those tails barely move the fit which is why leverage drops back toward zero at the extremes.
 
-For the reason why these valleys sit where they are is because the S-curve (from 1(d)) is steepest at the inflection ($\hat{p} =0.5$) but leverage also depends on the squared distance from the weighted mean. This yields the actual leverage. This is thus maximised when the data points are far from the weighted mean and not so far out that the model is certain.
+For the reason why these valleys sit where they are is because the S-curve is steepest at the inflection ($\hat{p} =0.5$) but leverage also depends on the squared distance from the weighted mean. This yields the actual leverage. This is thus maximised when the data points are far from the weighted mean and not so far out that the model is certain.
 # 1(f)
 
 ```{r}
