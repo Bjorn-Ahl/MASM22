@@ -10,6 +10,7 @@ format:
 editor: visual
 execute: 
   echo: false
+  warning: false
 ---
 
 ## Setup
@@ -37,6 +38,75 @@ df <- df |>
     pm10_high = as.numeric(PM10 >= cutoff),
     pm10_cat  = factor(pm10_high, levels = c(0, 1), labels = c("Low", "High"))
   )
+```
 
+```{r}
+ggplot(df, aes(x = Fuel, y = pm10_high, color = pm10_cat)) +
+  geom_point()
+```
+
+```{r}
 table(df$pm10_cat)
+cutoff
+```
+
+The cut-off value (upper tertile of PM10) is 5.3. This means that if an observation has value $\geq 5.3$ it will classify as 1 = "high" else 0 = "low".
+
+## 1(b)
+
+```{r}
+df$Part <- factor(df$Part, levels = c(1, 2, 3), labels = c("Götaland", "Svealand", "Norrland"))
+df$Part <- relevel(df$Part, ref = "Götaland")
+```
+
+```{r}
+tab <- table(Part = df$Part, Emission = df$pm10_cat)
+knitr::kable(tab)
+```
+
+```{r}
+tbl1b <- data.frame(
+  Part      = c("Götaland", "Svealand", "Norrland"),
+  Low       = c(100, 72, 18),
+  High      = c(40,  24, 36)
+) |>
+  mutate(
+    p       = High / (Low + High),
+    odds    = p / (1 - p),
+    log_odds = log(odds),
+    odds_ratios      = odds / odds[Part == "Götaland"],
+    log_odds_ratios  = log(odds_ratios)
+  )
+
+knitr::kable(tbl1b, digits = 4,
+             col.names = c("Part", "Low", "High", "p", "Odds", "Log-odds", "odds_ratios", "Log-odds_ratios"),
+             caption = "Table 1(b). Götaland = ref for odds_ratios")
+```
+
+Going from Götaland to Norrland gives an odds ratio of 5 $\implies$ high emissions are 5x more likely in Norrland versus G;taland
+
+## 1(c)
+
+```{r}
+# We need family = binomial so that we get logistic. Else we have default is normal distribution which would give just a linear model.
+model_1c <- glm(pm10_high ~ Part, data = df, family = binomial)
+
+ci_beta <- confint(model_1c)
+ci_exp  <- exp(ci_beta)
+
+tbl1c <- data.frame(
+  Term    = c("(Intercept)", "Svealand", "Norrland"),
+  beta    = coef(model_1c),
+  SE      = summary(model_1c)$coef[, 2],
+  CI_low  = ci_beta[, 1],
+  CI_high = ci_beta[, 2],
+  exp_beta     = exp(coef(model_1c)),
+  exp_CI_low   = ci_exp[, 1],
+  exp_CI_high  = ci_exp[, 2]
+)
+
+knitr::kable(tbl1c, digits = 4,
+             col.names = c("Term", "β", "SE", "95% CI low", "95% CI high",
+                           "e^β", "e^β 95% CI low", "e^β 95% CI high"),
+             caption = "Table 1(c): Model.1(c) coefficient estimates (reference: Götaland)")
 ```
