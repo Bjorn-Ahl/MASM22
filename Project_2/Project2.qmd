@@ -1,6 +1,6 @@
 ---
 title: "Project 2"
-author: "Björn Ahl, Leon Krasniqi, Nora Granström"
+author: "Björn Ahl, Shihan He, Orsolya Bosáková"
 date: today
 format:
   html:
@@ -95,7 +95,6 @@ ci_beta <- confint(model_1c)
 ci_exp  <- exp(ci_beta)
 
 tbl1c <- data.frame(
-  Term    = c("(Intercept)", "Svealand", "Norrland"),
   beta    = coef(model_1c),
   SE      = summary(model_1c)$coef[, 2],
   CI_low  = ci_beta[, 1],
@@ -108,5 +107,33 @@ tbl1c <- data.frame(
 knitr::kable(tbl1c, digits = 4,
              col.names = c("Term", "β", "SE", "95% CI low", "95% CI high",
                            "e^β", "e^β 95% CI low", "e^β 95% CI high"),
-             caption = "Table 1(c): Model.1(c) coefficient estimates (reference: Götaland)")
+             caption = "Table 1(c): Model 1(c) coefficient estimates")
 ```
+Here we see that the $e^{\beta}$ correspond to the oods_ratios in the previous task. The intercept for our reference region (Götaland) is 0.4. This matches up with our "regular" odds for Götaland.Hence 
+
+The log odds can really just be read off table 1(b). The model gives us standard errors and confidence intervals via the predict function. 
+
+```{r}
+nd   <- data.frame(Part = factor(c("Götaland", "Svealand", "Norrland"), levels = levels(df$Part)))
+pred <- predict(model_1c, newdata = nd, type = "link", se.fit = TRUE)
+
+lo    <- pred$fit
+se    <- pred$se.fit
+ci_lo <- lo - 1.96 * se
+ci_hi <- lo + 1.96 * se
+
+tbl_pred <- data.frame(
+  Part      = nd$Part,
+  log_odds  = lo,  SE = se,
+  CI_low    = ci_lo, CI_high = ci_hi,
+  prob      = plogis(lo),
+  prob_low  = plogis(ci_lo), prob_high = plogis(ci_hi)
+)
+
+knitr::kable(tbl_pred, digits = 4,
+             col.names = c("Part", "Log-odds", "SE", "CI low", "CI high",
+                           "Probability", "Prob CI low", "Prob CI high"),
+             caption = "Table 1(c): Log-odds and probabilities per region from Model.1(c)")
+``` 
+Norrland has a much higher probability of high emissions than Götaland and Svealand which are  similar to each other. Norrland also has a wider CI due to fewer observations, 54 vs 96 and 140. The overlap between Götaland and Svealand in the CI's  may actually imply that there is no real difference between them (probability-wise).
+
