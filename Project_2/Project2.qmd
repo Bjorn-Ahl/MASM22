@@ -135,6 +135,7 @@ knitr::kable(tbl_pred, digits = 4,
                            "Probability", "Prob CI low", "Prob CI high"),
              caption = "Table 1(c): Probabilities per region from model_1c")
 ``` 
+
 Norrland has a much higher probability of high emissions than Götaland and Svealand which are  similar to each other. Norrland also has a wider CI due to fewer observations, 54 vs 96 and 140. The overlap between Götaland and Svealand in the CI's  may actually imply that there is no real difference between them (probability-wise).
 
 \newline
@@ -147,3 +148,125 @@ anova(model_null, model_1c, test = "LRT")
 ```
 The value of the test statistic is the drop in deviance $= 29.4$. $H_0$ follows a $\chi^2(2)$ distribution (with 2 df). . The p-value is $4 \times 10^{-7}$, so we reject $H_0$. There is statistically strong evidence that the probability of high emissions differs between Götaland, Svealand and Norrland.
 
+## 1(d)
+
+```{r}
+ggplot(df, aes(x = Fuel, y = pm10_high)) +
+  geom_point(aes(color = pm10_cat)) +
+  geom_smooth(se = FALSE)+
+  ylim(0,1)
+```
+
+From this we see that as fuel increases we get that the probability of high emission increase as well (as defined in our low/high metric). In the beginning the curve rises rapidly and then plateuas. This is also the reason which motivates why we log-transform. The log transform sort of normalises the distribution and clustering in the beginning making it more linear. This is showcased in plot below.
+
+
+```{r}
+ggplot(df, aes(x = log(Fuel), y = pm10_high)) +
+  geom_point(aes(color = pm10_cat)) +
+  geom_smooth(se = FALSE) +
+  ylim(0, 1)
+```
+
+
+\newline
+We get a more symmetric/S-shaped curve and hence we should use it as an explanatory variable.
+
+```{r}
+model_1d <- glm(pm10_high ~ log(Fuel), data = df, family = binomial)
+
+ci_beta <- confint(model_1d)
+ci_exp  <- exp(ci_beta)
+
+tbl1d <- data.frame(
+  beta        = coef(model_1d),
+  SE          = summary(model_1d)$coef[, 2],
+  CI_low      = ci_beta[, 1],
+  CI_high     = ci_beta[, 2],
+  exp_beta    = exp(coef(model_1d)),
+  exp_CI_low  = ci_exp[, 1],
+  exp_CI_high = ci_exp[, 2]
+)
+
+knitr::kable(tbl1d, digits = 4,
+             col.names = c("β", "SE", "95% CI low", "95% CI high",
+                           "e^β", "e^β CI low", "e^β CI high"),
+             caption = "Table 1(d): Model.1(d) coefficient estimates")
+```
+To then get our estimated probability of a high emission rate and its CI to our plot we then just add method = "glm" which then calls predict.glm under the hood. It then builds Wald's CI's on log odds and then backtransform with the plogis() function to get the CI on the probability scale. 
+
+
+```{r}
+ggplot(df, aes(x = log(Fuel), y = pm10_high)) +
+  geom_point(aes(color = pm10_cat)) +
+  geom_smooth(method = "glm", method.args = list(family = binomial)) +
+  ylim(0, 1)
+```
+
+\newline
+Here we also have a likelyhood ratio test. The reason for this is that the sample size is not incredibly large, generally only Wald tests are good if the sample size is large. Likeleyhood ratio test is better because it comprates the fit of the two models via the difference in deviance. 
+
+\newline 
+Our $H_0: \beta{log(Fuel)} = 0$ (Fuel has no effect on prob of high emissions).
+
+```{r}
+anova(model_null, model_1d, test = "LRT")
+```
+This yields difference in deviance = 50.35 (which is our test statistic).
+Since the test is $\chi{^2}_{1}$ $\approx$ 3.84. Since 50.35 > 3.84 we can statistically reject that our $H_0: \beta{log(Fuel)} = 0$.
+
+\newline
+Just by the fact we have an exponential relationship. If log(Fuel) increases by 1 we get that Fuel increases by $e^1 - 1 = 1.72$ $\implies$ an increase of 172%. 
+\newline
+When the log-fuel increases by 1? The log-odds of high emissions is given by $\beta  + \beta \cdot ln(Fuel)$. (This jut follows from the fact that it models the log-odds as a linear function of the predictor.)
+$$\log\left(\frac{p}{1-p}\right) = \beta_0 + \beta \cdot \log(\text{Fuel})$$  
+
+Hence we get that the change is if ln(fuel) increases by 1 we get the the odds are given by e^1.24 (since $\beta = 1.24$  in our model (see table 1(d)))
+\newline
+By similar logic when the Fuel consumption increases by 10% we get that it increases by $ln(1.1) ≈ 0.095$ and hence the odds multiply by $e^{(\beta \cdot 0.095)}$. The CI would then also increase by this same margin. I.e $e^{\text{CI}\text{low} \cdot 0.095}$ and $e^{\text{CI}\text{high} \cdot 0.095}$ Reading off from the table we then get our 95% CI as (1.085, 1.173)
+
+# 1(e)
+
+```{r}
+#| fig-width: 9
+#| fig-height: 3.4
+n <- nrow(df); pp <- length(coef(model_1d))
+
+tibble(
+  h        = hatvalues(model_1d),
+  log_Fuel = log(df$Fuel),
+  eta_hat  = predict(model_1d),
+  p_hat    = predict(model_1d, type = "response")
+) |>
+  pivot_longer(-h) |>
+  mutate(name = factor(name, c("log_Fuel", "eta_hat", "p_hat"),
+                       labels = c("log(Fuel)", "linear predictor x·β̂", "p-hat"))) |>
+  ggplot(aes(value, h)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 1/n,    linetype = "dashed", colour = "steelblue") +
+  geom_hline(yintercept = 2*pp/n, linetype = "dashed", colour = "firebrick") +
+  facet_wrap(~ name, scales = "free_x") +
+  expand_limits(y = 0) +
+  labs(y = "Leverage h", x = NULL,
+       caption = sprintf("blue: 1/n = %.4f   red: 2(p+1)/n = %.4f", 1/n, 2*pp/n))
+```
+
+The two bumps are where the curve from 1(d) transitions from fairly flat to steeper. The left bump can be seen to be close to 3 which is where a lot of the datapoints lie at both 1 and 0. Hence smaller leverage. and largest leverage is given  near $\hat p \approx 0.9$ which can also be seen to correspond to the two datapoints which are classified as 0 when the log fuel is $\approx 5.25$. 
+
+In general the the flat tails means that the model is confident. For example that nearly every municipality is "Low" at low fuel and "High" at high fuel. These contradictory points are what $\hat\beta$ has to bend to accommodate so the fit is most sensitive there. That sensitivity can be considered to be the large leverage which is why it peaks exactly where the S curve changes its slope.
+
+# 1(f)
+
+```{r}
+ll_null <- as.numeric(logLik(model_null))
+mcf_adj <- function(m) 1 - (as.numeric(logLik(m)) - length(coef(m))) / ll_null
+
+tibble(
+  Model = c("1(c): Part", "1(d): log(Fuel)"),
+  K     = c(length(coef(model_1c)), length(coef(model_1d))),
+  AIC   = c(AIC(model_1c), AIC(model_1d)),
+  BIC   = c(BIC(model_1c), BIC(model_1d)),
+  `McFadden adj Rsq` = c(mcf_adj(model_1c), mcf_adj(model_1d))
+) |> knitr::kable(digits = 4, caption = "Table 1(f): model comparison")
+```
+
+All three criteria pick Model.1(d). lower AIC and BIC, higher adjusted pseudo-$R^2$. Fuel consumption explains substantially more of the variation in high-emission probability than the Part-of-Sweden factor and it also does so with fewer params.
