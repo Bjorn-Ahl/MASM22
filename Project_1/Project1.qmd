@@ -547,7 +547,7 @@ ggplot(plot_data, aes(x = pred, y = hat, color = is_top3)) +
   theme_minimal()
 ```
 
-e obtain that the top 3 by leverage are; Gällivare, Kiruna, Umeå. In order to explain why these municipalities have the highest leverage, we will plot those $x$-variables that are problematic by plotting their interaction with each other with specific notation on Gällivare, Kiruna and Umeå to see any outliers. We decide to not plot individual plots for the $x$-variables, since this is explained by interaction plots based on where on the x-axis/y-axis it is placed. 
+We obtain that the top 3 by leverage are; Gällivare, Kiruna, Umeå. In order to explain why these municipalities have the highest leverage, we will plot those $x$-variables that are problematic by plotting their interaction with each other with specific notation on Gällivare, Kiruna and Umeå to see any outliers. We decide to not plot individual plots for the $x$-variables, since this is explained by interaction plots based on where on the x-axis/y-axis it is placed. 
 
 ```{r}
 
