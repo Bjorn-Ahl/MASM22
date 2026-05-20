@@ -517,13 +517,14 @@ Under $H_0$ the statistic follows $F(12, n-p)$ with $F$-value $4.7233$ and where
 
 We look for observations with large hat values in Model 2(f), using $2(p+1)/n$ (dashed red) and $3(p+1)/n$ (dashed blue) as reference lines. We tried to give names to the red dots but eventually gave up after 10 hours \</3
 
-```{r}
+``{r}
 pred <- predict(interaction_model)
 hat <- hatvalues(interaction_model)
 top3 <- order(hat, decreasing = TRUE)[1:3]
 
 # Create a data frame for plotting
 plot_data <- data.frame(
+  Kommun = df$Kommun,
   pred = pred,
   hat = hat,
   is_top3 = FALSE
@@ -531,6 +532,7 @@ plot_data <- data.frame(
 plot_data$is_top3[top3] <- TRUE
 
 ggplot(plot_data, aes(x = pred, y = hat, color = is_top3)) +
+  geom_text(data = filter(plot_data, hat > 0.3), aes(label=Kommun), size=6) + 
   geom_point(size = ifelse(plot_data$is_top3, 3, 1)) +
   scale_color_manual(values = c("FALSE" = "black", "TRUE" = "red"), 
                      labels = c("FALSE" = "Regular points", "TRUE" = "Top 3 leverage")) +
@@ -545,7 +547,30 @@ ggplot(plot_data, aes(x = pred, y = hat, color = is_top3)) +
   theme_minimal()
 ```
 
-We obtain that the top 3 by leverage are; Gällivare, Solna, Åre. The reason for Gällivare having such high leverage could possibly be that there are mines such as Aitik and Malmberget located there making the emissions very high. In the case of Solna and Åre however the reason could potentially be that they have very little activity that would contribute to these emissions, making the emission rates there very low.
+e obtain that the top 3 by leverage are; Gällivare, Kiruna, Umeå. In order to explain why these municipalities have the highest leverage, we will plot those $x$-variables that are problematic by plotting their interaction with each other with specific notation on Gällivare, Kiruna and Umeå to see any outliers. We decide to not plot individual plots for the $x$-variables, since this is explained by interaction plots based on where on the x-axis/y-axis it is placed. 
+
+```{r}
+
+df <- mutate(
+  df, 
+  highlight = hat > 0.3
+)
+
+ggplot(df, aes(log(Fuel), log(GRP))) +
+  geom_point(data = filter(df, !highlight), color = "grey60", size = 1.5) +
+  geom_point(data = filter(df,  highlight), color = "red",    size = 3) +
+  geom_text( data = filter(df,  highlight), aes(label = Kommun), color = "red", size = 3, vjust = -0.8) + labs(title = "log(Fuel) vs log(GRP)") +
+  theme_minimal()
+
+ggplot(df, aes(log(Higheds), log(Seniors))) +
+  geom_point(data = filter(df, !highlight), color = "grey60", size = 1.5) +
+  geom_point(data = filter(df,  highlight), color = "red",    size = 3) +
+  geom_text( data = filter(df,  highlight), aes(label = Kommun), color = "red", size = 3, vjust = -0.8) + labs(title = "log(Higheds) vs log(Seniors)") +
+  theme_minimal()
+
+```
+
+For the first plot, we plot log(Fuel) vs log(GRP). In this case, we can see that Kiruna and Gällivare are "extreme" values. This is mainly because of LKAB, which is a state owned mining company. This lead to a lot of fuel consumption in order to obtain high quality mining industry. For the second plot, where we plot log(Higheds) vs log(Seniors), we can see that Umeå is a "extreme" value. This is mainly because Umeå have an university, which make it a student city. It tend to be a lot of people with at least 3 years of post-secondary education with few seniors. This is reflected on the plot, since we have a lot on Higheds with few seniors. This is explaining why those municipalities have such high leverage, where GRP, Fuel, Higheds and Seniors are $x$-variables that are problematic.  
 
 ## 3(b) Cook's distance and DFBETAS
 
